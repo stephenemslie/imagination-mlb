@@ -1,6 +1,8 @@
 Django==1.11
+django-environ==0.4.3
 django-fsm==2.5.0
 djangorestframework-jwt==1.10.0
 djangorestframework==3.6.2
+psycopg2==2.7.1
 boto3==1.4.4
 gunicorn==19.7.1
