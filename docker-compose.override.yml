@@ -1,0 +1,11 @@
+version: '3'
+services:
+    django:
+        volumes:
+            - '.:/app'
+        ports:
+            - "8000:8000"
+        environment:
+            DEBUG: 'True'
+            SECRET_KEY: 'c2(x6#tdaqukzk7z6n7)ox9x0@()r3s%9nbyd87p4qj1zn1a0i'
+            DATABASE_URL: 'psql://postgres@postgres:5432/postgres'
