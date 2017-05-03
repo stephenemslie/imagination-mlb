@@ -8,7 +8,7 @@ class User(AbstractUser):
 
 
 class Game(models.Model):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, related_name='games')
     date = models.DateField(auto_now_add=True)
     total_distance = models.IntegerField()
     num_homeruns = models.IntegerField()
