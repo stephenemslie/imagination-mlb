@@ -16,6 +16,22 @@ class User(AbstractUser):
     state = FSMField(default='registered')
     team = models.ForeignKey(Team, null=True, blank=True)
 
+    @transition(field=state, source='registered', target='recalled')
+    def send_notification(self):
+        pass
+
+    @transition(field=state, source=['registered', 'recalled'], target='confirmed')
+    def confirm(self):
+        pass
+
+    @transition(field=state, source='confirmed', target='playing')
+    def set_playing(self):
+        pass
+
+    @transition(field=state, source='playing', target='complete')
+    def set_complete(self):
+        pass
+
 
 class Game(models.Model):
     user = models.ForeignKey(User, related_name='games')
