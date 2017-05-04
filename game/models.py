@@ -14,6 +14,7 @@ class User(AbstractUser):
     image = models.ImageField(null=True, blank=True)
     is_finalist = models.BooleanField(default=False)
     team = models.ForeignKey(Team, null=True, blank=True)
+    active_game = models.OneToOneField('Game', related_name='+', null=True, blank=True)
 
 
 class Game(models.Model):
