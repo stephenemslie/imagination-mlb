@@ -1,3 +1,6 @@
+import string
+import random
+
 import factory
 
 
@@ -28,5 +31,5 @@ class PlayerUserFactory(factory.django.DjangoModelFactory):
     first_name = factory.Faker('first_name')
     last_name = factory.Faker('last_name')
     email = factory.Faker('email')
-    mobile_number = factory.Faker('phone_number')
+    mobile_number = factory.LazyFunction(lambda: '+4477{}'.format(''.join(random.choices(string.digits, k=8))))
     team = factory.SubFactory(TeamFactory)
