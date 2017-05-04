@@ -13,28 +13,39 @@ class User(AbstractUser):
     mobile_number = PhoneNumberField(unique=True)
     image = models.ImageField(null=True, blank=True)
     is_finalist = models.BooleanField(default=False)
-    state = FSMField(default='registered')
     team = models.ForeignKey(Team, null=True, blank=True)
-
-    @transition(field=state, source='registered', target='recalled')
-    def send_notification(self):
-        pass
-
-    @transition(field=state, source=['registered', 'recalled'], target='confirmed')
-    def confirm(self):
-        pass
-
-    @transition(field=state, source='confirmed', target='playing')
-    def set_playing(self):
-        pass
-
-    @transition(field=state, source='playing', target='complete')
-    def set_complete(self):
-        pass
 
 
 class Game(models.Model):
     user = models.ForeignKey(User, related_name='games')
-    date = models.DateField(auto_now_add=True)
-    total_distance = models.IntegerField()
-    num_homeruns = models.IntegerField()
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_updated = models.DateTimeField(auto_now=True)
+    distance = models.IntegerField(default=0)
+    homeruns = models.IntegerField(default=0)
+    score = models.IntegerField(default=0)
+    state = FSMField(default='new')
+
+    @transition(field=state, source='new', target='queued')
+    def queue(self):
+        pass
+
+    @transition(field=state, source=['new', 'recalled'], target='confirmed')
+    def confirm(self):
+        pass
+
+    @transition(field=state, source='new', target='recalled')
+    def recall(self):
+        pass
+
+    @transition(field=state, source='confirmed', target='playing')
+    def play(self):
+        pass
+
+    @transition(field=state, source='playing', target='completed')
+    def complete(self, score, distance, homeruns):
+        self.score = score
+        self.distance = distance
+        self.homeruns = homeruns
+
+    def send_recall_sms(self):
+        client = boto3.client('sns')
