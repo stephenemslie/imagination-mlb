@@ -33,3 +33,11 @@ class PlayerUserFactory(factory.django.DjangoModelFactory):
     email = factory.Faker('email')
     mobile_number = factory.LazyFunction(lambda: '+4477{}'.format(''.join(random.choices(string.digits, k=8))))
     team = factory.SubFactory(TeamFactory)
+
+
+class GameFactory(factory.django.DjangoModelFactory):
+
+    class Meta:
+        model = 'game.Game'
+
+    user = factory.SubFactory(PlayerUserFactory)
