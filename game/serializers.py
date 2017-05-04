@@ -6,7 +6,7 @@ class GameSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Game
-        fields = ('id', 'date', 'total_distance', 'num_homeruns')
+        fields = ('id', 'date_created', 'date_updated', 'distance', 'homeruns', 'score', 'state')
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -15,4 +15,4 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'first_name', 'last_name', 'mobile_number', 'email', 'games')
+        fields = ('id', 'first_name', 'last_name', 'mobile_number', 'email', 'games', 'active_game')
