@@ -1,5 +1,4 @@
 import factory
-from .models import User, Team
 
 
 class TeamFactory(factory.django.DjangoModelFactory):
