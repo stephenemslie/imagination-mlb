@@ -7,7 +7,7 @@ from game.views import UserViewSet, GameViewSet
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^api-token-auth/', obtain_jwt_token),
+    url(r'^token/', obtain_jwt_token),
 ]
 
 router = routers.DefaultRouter()
