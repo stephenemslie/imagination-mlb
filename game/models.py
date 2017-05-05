@@ -20,6 +20,9 @@ class User(AbstractUser):
     team = models.ForeignKey(Team, null=True, blank=True)
     active_game = models.OneToOneField('Game', related_name='+', null=True, blank=True)
 
+    def send_recall_sms(self):
+        client = boto3.client('sns')
+
 
 class GameQuerySet(models.QuerySet):
 
@@ -58,7 +61,7 @@ class Game(models.Model):
 
     @transition(field=state, source='new', target='recalled')
     def recall(self):
-        pass
+        self.user.send_recall_sms()
 
     @transition(field=state, source='confirmed', target='playing')
     def play(self):
@@ -69,6 +72,3 @@ class Game(models.Model):
         self.score = score
         self.distance = distance
         self.homeruns = homeruns
-
-    def send_recall_sms(self):
-        client = boto3.client('sns')
