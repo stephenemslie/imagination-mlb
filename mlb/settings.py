@@ -118,3 +118,6 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',
     ),
 }
+
+RECALL_WINDOW_SIZE = 2
+RECALL_WINDOW_MINUTES = 20
