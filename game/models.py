@@ -1,5 +1,9 @@
+import datetime
+
 from django.db import models
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
+from django.utils import timezone
 
 from django_fsm import FSMField, transition
 from phonenumber_field.modelfields import PhoneNumberField
@@ -17,6 +21,22 @@ class User(AbstractUser):
     active_game = models.OneToOneField('Game', related_name='+', null=True, blank=True)
 
 
+class GameQuerySet(models.QuerySet):
+
+    def active_recalls(self, recall_expire=None, now=None):
+        now = now or timezone.now()
+        recall_expire = recall_expire or settings.RECALL_WINDOW_MINUTES
+        expire_time = now - datetime.timedelta(minutes=recall_expire)
+        query = self.filter(state='recalled', date_updated__gt=expire_time)
+        return query
+
+    def next_recalls(self, max_recalls=None):
+        max_recalls = max_recalls or settings.RECALL_WINDOW_SIZE
+        size = max(max_recalls - self.active_recalls().count(), 0)
+        query = self.order_by('date_created').filter(state='queued')[:size]
+        return query
+
+
 class Game(models.Model):
     user = models.ForeignKey(User, related_name='games')
     date_created = models.DateTimeField(auto_now_add=True)
@@ -25,6 +45,8 @@ class Game(models.Model):
     homeruns = models.IntegerField(default=0)
     score = models.IntegerField(default=0)
     state = FSMField(default='new')
+
+    objects = GameQuerySet.as_manager()
 
     @transition(field=state, source='new', target='queued')
     def queue(self):
