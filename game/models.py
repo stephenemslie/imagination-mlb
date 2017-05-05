@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 
+import boto3
 from django_fsm import FSMField, transition
 from phonenumber_field.modelfields import PhoneNumberField
 
@@ -21,7 +22,17 @@ class User(AbstractUser):
     active_game = models.OneToOneField('Game', related_name='+', null=True, blank=True)
 
     def send_recall_sms(self):
-        client = boto3.client('sns')
+        client = boto3.client('sns',
+                              aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+                              aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+                              region_name=settings.AWS_REGION_NAME)
+        message = "test"
+        client.publish(PhoneNumber=self.mobile_number.as_e164,
+                       Message=message,
+                       MessageAttributes={'AWS.SNS.SMS.SenderID': {
+                           'DataType': 'String',
+                           'StringValue': settings.RECALL_SENDER_ID}
+                       })
 
 
 class GameQuerySet(models.QuerySet):
