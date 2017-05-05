@@ -55,8 +55,8 @@ class TestGameStateActions(AuthenticatedTestMixin, APITestCase):
 
 class TestCompleteGame(AuthenticatedTestMixin, APITestCase):
 
-    @mock.patch.object(Game, 'send_recall_sms')
-    def setUp(self, send_recall_sms):
+    @mock.patch('django_fsm.signals.post_transition.send')
+    def setUp(self, send):
         super().setUp()
         self.score_data = {'score': 100, 'homeruns': 3, 'distance': 100}
         self.player = PlayerUserFactory()
@@ -64,7 +64,7 @@ class TestCompleteGame(AuthenticatedTestMixin, APITestCase):
         game_id = self.player.active_game.pk
         self.response = self.client.post(reverse('game-complete', args=(game_id,)), self.score_data)
         self.game = Game.objects.get(pk=game_id)
-        self._send_recall_sms = send_recall_sms
+        self._send = send
 
     def test_state(self):
         self.assertEqual(self.game.state, 'completed')
@@ -78,8 +78,9 @@ class TestCompleteGame(AuthenticatedTestMixin, APITestCase):
         self.assertEqual(self.response.data['homeruns'], self.score_data['homeruns'])
         self.assertEqual(self.response.data['distance'], self.score_data['distance'])
 
-    def test_send_recall(self):
-        self._send_recall_sms.assert_called()
+    def test_signal(self):
+        self._send.assert_called()
+        self.assertEqual(self._send.call_args[1]['target'], 'completed')
 
 
 class TestRecall(APITestCase):
