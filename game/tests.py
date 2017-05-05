@@ -1,6 +1,11 @@
+import datetime
 from unittest import mock
+
+from django.conf import settings
+from django.utils.timezone import now
 from rest_framework.test import APITestCase
 from rest_framework.reverse import reverse
+
 from .factories import AdminUserFactory, PlayerUserFactory, GameFactory
 from .models import User, Game
 
@@ -75,3 +80,37 @@ class TestCompleteGame(AuthenticatedTestMixin, APITestCase):
 
     def test_send_recall(self):
         self._send_recall_sms.assert_called()
+
+
+class TestRecall(APITestCase):
+
+    def setUp(self):
+        expired_time = now() - datetime.timedelta(minutes=settings.RECALL_WINDOW_MINUTES + 1)
+        GameFactory(state='new')
+        for i in range(10):
+            GameFactory(state='queued')
+        self.old_game = GameFactory(state='queued')
+        self.old_game.date_created = now() - datetime.timedelta(days=10)
+        self.old_game.save()
+        GameFactory(state='confirmed')
+        GameFactory(state='playing')
+        GameFactory(state='completed')
+        GameFactory(state='recalled')
+        GameFactory(state='recalled')
+        game = GameFactory(state='recalled')
+        Game.objects.filter(pk=game.pk).update(date_updated=expired_time)
+
+    def test_active_recalls(self):
+        self.assertEqual(Game.objects.active_recalls().count(), 2)
+
+    def test_next_recalls(self):
+        with self.settings(RECALL_WINDOW_SIZE=3):
+            self.assertEqual(Game.objects.next_recalls().count(), 1)
+        with self.settings(RECALL_WINDOW_SIZE=4):
+            self.assertEqual(Game.objects.next_recalls().count(), 2)
+        with self.settings(RECALL_WINDOW_SIZE=1):
+            self.assertEqual(Game.objects.next_recalls().count(), 0)
+
+    def test_queue_order(self):
+        with self.settings(RECALL_WINDOW_SIZE=3):
+            self.assertEqual(list(Game.objects.next_recalls()), [self.old_game])
