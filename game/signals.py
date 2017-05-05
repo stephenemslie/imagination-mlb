@@ -5,6 +5,7 @@ from .models import Game
 
 
 @receiver(post_transition, sender=Game)
-def recall_user(sender, instance, name, source, target, **kwargs):
+def recall_users(sender, instance, name, source, target, **kwargs):
     if target == 'completed':
-        instance.send_recall_sms()
+        for game in Game.objects.next_recalls():
+            game.user.recall()
