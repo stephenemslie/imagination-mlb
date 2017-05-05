@@ -32,6 +32,7 @@ class PlayerUserFactory(factory.django.DjangoModelFactory):
     last_name = factory.Faker('last_name')
     email = factory.Faker('email')
     mobile_number = factory.LazyFunction(lambda: '+4477{}'.format(''.join(random.choices(string.digits, k=8))))
+    username = factory.LazyAttribute(lambda obj: obj.mobile_number)
     team = factory.SubFactory(TeamFactory)
 
 
