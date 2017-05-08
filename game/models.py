@@ -77,7 +77,7 @@ class Game(models.Model):
     def confirm(self):
         pass
 
-    @transition(field=state, source='new', target='recalled')
+    @transition(field=state, source='queued', target='recalled')
     def recall(self):
         self.user.send_recall_sms()
 
