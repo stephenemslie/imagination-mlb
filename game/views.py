@@ -52,6 +52,14 @@ class GameViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     @detail_route(methods=['POST'])
+    def recall(self, request, pk=None):
+        game = self.get_object()
+        game.recall()
+        game.save()
+        serializer = self.get_serializer(game)
+        return Response(serializer.data)
+
+    @detail_route(methods=['POST'])
     def complete(self, request, pk=None):
         game = self.get_object()
         serializer = GameScoreSerializer(data=request.data)
