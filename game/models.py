@@ -32,9 +32,13 @@ class User(AbstractUser):
         message = "test"
         client.publish(PhoneNumber=self.mobile_number.as_e164,
                        Message=message,
-                       MessageAttributes={'AWS.SNS.SMS.SenderID': {
-                           'DataType': 'String',
-                           'StringValue': settings.RECALL_SENDER_ID}
+                       MessageAttributes={
+                           'AWS.SNS.SMS.SenderID': {
+                               'DataType': 'String',
+                               'StringValue': settings.RECALL_SENDER_ID},
+                           'AWS.SNS.SMS.SMSType': {
+                               'DataType': 'String',
+                               'StringValue': 'Transactional'}
                        })
 
 
