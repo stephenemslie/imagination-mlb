@@ -69,7 +69,7 @@ class Game(models.Model):
 
     objects = GameQuerySet.as_manager()
 
-    @transition(field=state, source='new', target='queued')
+    @transition(field=state, source=['recalled', 'new'], target='queued')
     def queue(self):
         pass
 
