@@ -8,5 +8,6 @@ services:
         build: .
         depends_on:
             - postgres
+        env_file: .env
         environment:
             DJANGO_SETTINGS_MODULE: 'mlb.settings'
