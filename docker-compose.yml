@@ -11,3 +11,4 @@ services:
         env_file: .env
         environment:
             DJANGO_SETTINGS_MODULE: 'mlb.settings'
+        command: runserver
