@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Game
+from .models import User, Game, Team
 
 
 class GameSerializer(serializers.ModelSerializer):
@@ -13,10 +13,11 @@ class UserSerializer(serializers.ModelSerializer):
 
     games = GameSerializer(many=True, read_only=True)
     active_game = GameSerializer(read_only=True)
+    team = serializers.SlugRelatedField(required=True, slug_field='name', queryset=Team.objects.all())
 
     class Meta:
         model = User
-        fields = ('id', 'first_name', 'last_name', 'mobile_number', 'email', 'games', 'active_game')
+        fields = ('id', 'first_name', 'last_name', 'mobile_number', 'email', 'games', 'active_game', 'team')
 
     def create(self, validated_data):
         validated_data['username'] = validated_data['mobile_number']
