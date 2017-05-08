@@ -30,6 +30,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'phonenumber_field',
+    'django_filters',
+    'crispy_forms',
     'rest_framework',
     'game.apps.GameConfig',
 ]

@@ -1,14 +1,26 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import detail_route
+from django_filters.rest_framework import DjangoFilterBackend, FilterSet, CharFilter
 
 from .models import User, Game
 from .serializers import UserSerializer, GameSerializer, GameScoreSerializer
 
 
+class UserFilter(FilterSet):
+    state = CharFilter(name='active_game__state')
+    team = CharFilter(name='team__name')
+
+    class Meta:
+        model = User
+        fields = ('state', 'is_finalist', 'team')
+
+
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filter_class = UserFilter
 
 
 class GameViewSet(viewsets.ModelViewSet):
