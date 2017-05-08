@@ -13,7 +13,7 @@ fi
 if [ "$1" = 'gunicorn' ]; then
     python3 manage.py migrate --noinput
     python3 manage.py collectstatic --noinput
-    exec bin/wait-for-it.sh postgres:5432 -- gunicorn mlb.wsgi --config /app/mlb/mlb/gunicorn-config.py
+    exec bin/wait-for-it.sh postgres:5432 -- gunicorn mlb.wsgi
 fi
 
 if [ "$1" = 'shell' ]; then
