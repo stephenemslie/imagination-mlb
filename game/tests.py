@@ -6,7 +6,7 @@ from django.utils.timezone import now
 from rest_framework.test import APITestCase
 from rest_framework.reverse import reverse
 
-from .factories import AdminUserFactory, PlayerUserFactory, GameFactory
+from .factories import AdminUserFactory, PlayerUserFactory, GameFactory, TeamFactory
 from .models import User, Game
 
 
@@ -26,10 +26,11 @@ class TestGameStateActions(AuthenticatedTestMixin, APITestCase):
         super().setUp()
         self.player = PlayerUserFactory()
         self.player.active_game = GameFactory(user=self.player)
+        self.team = TeamFactory()
 
     def test_game_on_create(self):
         player = PlayerUserFactory.build()
-        data = {'first_name': player.first_name, 'mobile_number': player.mobile_number}
+        data = {'first_name': player.first_name, 'mobile_number': player.mobile_number, 'team': self.team.name}
         response = self.client.post(reverse('user-list'), data)
         user = User.objects.get(pk=response.data['id'])
         game = Game.objects.get(user=user)
@@ -45,6 +46,20 @@ class TestGameStateActions(AuthenticatedTestMixin, APITestCase):
         response = self.client.post(reverse('game-queue', args=(self.player.active_game.pk,)))
         game = Game.objects.get(pk=self.player.active_game.pk)
         self.assertEqual(game.state, 'queued')
+
+    @mock.patch.object(User, 'send_recall_sms')
+    def test_recall(self, send_recall_sms):
+        self.client.post(reverse('game-queue', args=(self.player.active_game.pk,)))
+        self.client.post(reverse('game-recall', args=(self.player.active_game.pk,)))
+        send_recall_sms.assert_called()
+
+    @mock.patch.object(User, 'send_recall_sms')
+    def test_requeue(self, _send_recall_sms):
+        self.assertEqual(Game.objects.get(pk=self.player.active_game.pk).state, 'new')
+        self.client.post(reverse('game-queue', args=(self.player.active_game.pk,)))
+        self.client.post(reverse('game-recall', args=(self.player.active_game.pk,)))
+        self.client.post(reverse('game-queue', args=(self.player.active_game.pk,)))
+        self.assertEqual(Game.objects.get(pk=self.player.active_game.pk).state, 'queued')
 
     def test_play(self):
         self.player.active_game = GameFactory(user=self.player, state='confirmed')
