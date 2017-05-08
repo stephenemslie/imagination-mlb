@@ -9,7 +9,7 @@ class TeamFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = 'game.Team'
 
-    name = factory.Faker('word')
+    name = factory.Sequence(lambda n: 'team-{}'.format(n))
 
 
 class AdminUserFactory(factory.django.DjangoModelFactory):
