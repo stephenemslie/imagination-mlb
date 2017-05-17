@@ -7,7 +7,7 @@ fi
 
 if [ "$1" = 'runserver' ]; then
     bin/wait-for-it.sh postgres:5432 -- python3 manage.py migrate --noinput
-    python3 manage.py runserver 0:8000
+    exec python3 manage.py runserver 0:8000
 fi
 
 if [ "$1" = 'gunicorn' ]; then
