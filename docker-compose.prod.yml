@@ -1,5 +1,7 @@
 version: '3'
 services:
+    postgres:
+        restart: always
     django:
         ports:
             - 8000:8000
