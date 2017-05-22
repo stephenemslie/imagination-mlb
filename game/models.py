@@ -18,7 +18,7 @@ class Team(models.Model):
 
 
 class User(AbstractUser):
-    mobile_number = PhoneNumberField(unique=True)
+    mobile_number = PhoneNumberField(unique=False)
     image = models.ImageField(null=True, blank=True)
     is_finalist = models.BooleanField(default=False)
     team = models.ForeignKey(Team, null=True, blank=True)
