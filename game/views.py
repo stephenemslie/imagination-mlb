@@ -22,6 +22,9 @@ class UserViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filter_class = UserFilter
 
+    def get_queryset(self):
+        return self.queryset.filter(is_staff=False, is_superuser=False, is_active=True)
+
 
 class GameViewSet(viewsets.ModelViewSet):
     queryset = Game.objects.all()
