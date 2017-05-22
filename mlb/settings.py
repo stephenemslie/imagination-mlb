@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
     'phonenumber_field',
     'django_filters',
     'crispy_forms',
@@ -36,6 +37,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -128,3 +130,6 @@ RECALL_SENDER_ID = env('RECALL_SENDER_ID', default='MLB')
 AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID', default=None)
 AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY', default=None)
 AWS_REGION_NAME = env('AWS_REGION_NAME', default=None)
+
+CORS_ORIGIN_ALLOW_ALL=env.bool('CORS_ORIGIN_ALLOW_ALL', default=False)
+CORS_ORIGIN_WHITELIST=env.list('CORS_ORIGIN_WHITELIST', default='localhost:8000')
