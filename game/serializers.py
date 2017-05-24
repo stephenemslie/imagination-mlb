@@ -13,7 +13,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 
     games = GameSerializer(many=True, read_only=True)
     active_game = GameSerializer(read_only=True)
-    team = serializers.SlugRelatedField(required=True, slug_field='name', queryset=Team.objects.all())
+    team = serializers.SlugRelatedField(required=False, slug_field='name', queryset=Team.objects.all())
 
     class Meta:
         model = User
