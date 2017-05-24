@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'django_fsm',
     'crispy_forms',
     'rest_framework',
+    'django_slack',
     'game.apps.GameConfig',
 ]
 
@@ -124,6 +125,35 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',
     ),
 }
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        },
+    },
+    'handlers': {
+        'slack_admins': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false'],
+            'class': 'django_slack.log.SlackExceptionHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['slack_admins'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
+
+SLACK_TOKEN = env('SLACK_TOKEN', default=None)
+SLACK_CHANNEL = '#mlb'
+SLACK_BACKEND = 'django_slack.backends.UrllibBackend'
+SLACK_USERNAME = 'django'
 
 RECALL_DISABLE = env.bool('RECALL_DISABLE', default=False)
 RECALL_WINDOW_SIZE = env('RECALL_WINDOW_SIZE', default=2)
