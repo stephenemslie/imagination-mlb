@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'storages',
     'phonenumber_field',
     'django_filters',
+    'django_fsm',
     'crispy_forms',
     'rest_framework',
     'game.apps.GameConfig',
