@@ -169,4 +169,4 @@ CORS_ORIGIN_WHITELIST=env.list('CORS_ORIGIN_WHITELIST', default='localhost:8000'
 
 if DEBUG is False:
     DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-    AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME', default='mlb-queue')
+    AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME', default='mlb-django')
