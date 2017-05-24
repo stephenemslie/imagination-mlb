@@ -9,7 +9,7 @@ class GameSerializer(serializers.ModelSerializer):
         fields = ('id', 'date_created', 'date_updated', 'distance', 'homeruns', 'score', 'state')
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.HyperlinkedModelSerializer):
 
     games = GameSerializer(many=True, read_only=True)
     active_game = GameSerializer(read_only=True)
@@ -17,7 +17,8 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'first_name', 'last_name', 'mobile_number', 'email', 'games', 'active_game', 'team')
+        fields = ('url', 'id', 'first_name', 'last_name', 'mobile_number',
+                  'email', 'games', 'active_game', 'team', 'image')
 
     def create(self, validated_data):
         validated_data['username'] = validated_data['mobile_number']
