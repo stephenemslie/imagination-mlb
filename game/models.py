@@ -79,7 +79,8 @@ class Game(models.Model):
 
     @transition(field=state, source='queued', target='recalled')
     def recall(self):
-        self.user.send_recall_sms()
+        if not settings.RECALL_DISABLE:
+            self.user.send_recall_sms()
 
     @transition(field=state, source='confirmed', target='playing')
     def play(self):
