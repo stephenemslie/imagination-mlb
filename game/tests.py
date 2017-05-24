@@ -68,6 +68,45 @@ class TestGameStateActions(AuthenticatedTestMixin, APITestCase):
         self.assertEqual(game.state, 'playing')
 
 
+class TestIllegalGameStateChanges(AuthenticatedTestMixin, APITestCase):
+
+    def setUp(self):
+        super().setUp()
+        self.player = PlayerUserFactory()
+        self.player.active_game = GameFactory(user=self.player)
+        self.team = TeamFactory()
+
+    def test_queue(self):
+        for state in ('confirmed', 'playing', 'completed'):
+            self.player.active_game = GameFactory(user=self.player, state=state)
+            response = self.client.post(reverse('game-queue', args=(self.player.active_game.pk,)))
+            self.assertEqual(response.status_code, 400)
+
+    def test_recall(self):
+        for state in ('new', 'confirmed', 'playing', 'completed'):
+            self.player.active_game = GameFactory(user=self.player, state=state)
+            response = self.client.post(reverse('game-recall', args=(self.player.active_game.pk,)))
+            self.assertEqual(response.status_code, 400)
+
+    def test_confirm(self):
+        for state in ('queued', 'playing', 'complete'):
+            self.player.active_game = GameFactory(user=self.player, state=state)
+            response = self.client.post(reverse('game-confirm', args=(self.player.active_game.pk,)))
+            self.assertEqual(response.status_code, 400)
+
+    def test_play(self):
+        for state in ('new', 'queued', 'recalled', 'completed'):
+            self.player.active_game = GameFactory(user=self.player, state=state)
+            response = self.client.post(reverse('game-play', args=(self.player.active_game.pk,)))
+            self.assertEqual(response.status_code, 400)
+
+    def test_complete(self):
+        for state in ('new', 'queued', 'recalled', 'confirmed'):
+            self.player.active_game = GameFactory(user=self.player, state=state)
+            response = self.client.post(reverse('game-complete', args=(self.player.active_game.pk,)))
+            self.assertEqual(response.status_code, 400)
+
+
 class TestCompleteGame(AuthenticatedTestMixin, APITestCase):
 
     @mock.patch('django_fsm.signals.post_transition.send')
