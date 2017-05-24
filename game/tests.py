@@ -49,9 +49,10 @@ class TestGameStateActions(AuthenticatedTestMixin, APITestCase):
 
     @mock.patch.object(User, 'send_recall_sms')
     def test_recall(self, send_recall_sms):
-        self.client.post(reverse('game-queue', args=(self.player.active_game.pk,)))
-        self.client.post(reverse('game-recall', args=(self.player.active_game.pk,)))
-        send_recall_sms.assert_called()
+        with self.settings(RECALL_DISABLE=False):
+            self.client.post(reverse('game-queue', args=(self.player.active_game.pk,)))
+            self.client.post(reverse('game-recall', args=(self.player.active_game.pk,)))
+            send_recall_sms.assert_called()
 
     @mock.patch.object(User, 'send_recall_sms')
     def test_requeue(self, _send_recall_sms):
