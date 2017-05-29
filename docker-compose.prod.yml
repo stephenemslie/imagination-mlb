@@ -9,6 +9,19 @@ services:
             - "/var/run/docker.sock:/tmp/docker.sock:ro"
     postgres:
         restart: always
+    postgres-backup:
+        image: schickling/postgres-backup-s3
+        env_file: .env
+        depends_on:
+            - postgres
+        environment:
+            SCHEDULE: "@daily"
+            S3_BUCKET: mlb-backups
+            S3_PREFIX: 'postgresql'
+            POSTGRES_DATABASE: postgres
+            POSTGRES_USER: postgres
+            POSTGRES_HOST: postgres
+
     django:
         environment:
             DEBUG: 'False'
