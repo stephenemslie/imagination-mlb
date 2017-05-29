@@ -20,10 +20,6 @@ if [ "$1" = 'shell' ]; then
     exec /bin/bash
 fi
 
-if [ "$1" = 'db-backup' ]; then
-    echo foo
-fi
-
 if [ "$1" = 'ipython' ]; then
     exec python3 manage.py shell
 fi
