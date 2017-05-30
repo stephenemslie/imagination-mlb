@@ -174,3 +174,40 @@ class TestRecall(APITestCase):
     def test_queue_order(self):
         with self.settings(RECALL_WINDOW_SIZE=3):
             self.assertEqual(list(Game.objects.next_recalls()), [self.old_game])
+
+
+class TestGameView(AuthenticatedTestMixin, APITestCase):
+
+    def setUp(self):
+        super().setUp()
+        self.team_1 = TeamFactory()
+        self.team_2 = TeamFactory()
+        for i in range(10):
+            game = GameFactory(state='completed', score=10)
+            game.user.team = self.team_1
+            game.user.save()
+        for i in range(10):
+            game = GameFactory(state='completed', score=20)
+            game.user.team = self.team_2
+            game.user.save()
+        yesterday = now() - datetime.timedelta(days=1)
+        for i in range(20):
+            game = GameFactory(state='completed', score=10)
+            game.date_created = yesterday
+            game.user.team = self.team_1
+            game.user.save()
+            game.save()
+        for i in range(10):
+            game = GameFactory(state='completed', score=10)
+            game.date_created = yesterday
+            game.user.team = self.team_2
+            game.user.save()
+            game.save()
+
+    def test_scores(self):
+        team1_response = self.client.get(reverse('team-detail', args=(self.team_1.pk,)))
+        team2_response = self.client.get(reverse('team-detail', args=(self.team_2.pk,)))
+        self.assertEqual(team1_response.json()['scores'][0]['score'], 200)
+        self.assertEqual(team1_response.json()['scores'][1]['score'], 100)
+        self.assertEqual(team2_response.json()['scores'][0]['score'], 100)
+        self.assertEqual(team2_response.json()['scores'][1]['score'], 200)
