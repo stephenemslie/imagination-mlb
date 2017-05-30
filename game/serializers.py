@@ -2,6 +2,15 @@ from rest_framework import serializers
 from .models import User, Game, Team
 
 
+class TeamSerializer(serializers.HyperlinkedModelSerializer):
+
+    scores = serializers.ListField(serializers.DictField(child=serializers.DateField()))
+
+    class Meta:
+        model = Team
+        fields = ('url', 'id', 'scores')
+
+
 class GameSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
