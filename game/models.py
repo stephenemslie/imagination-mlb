@@ -1,6 +1,7 @@
 import datetime
 
 from django.db import models
+from django.db.models.functions import Trunc
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
@@ -15,6 +16,15 @@ class Team(models.Model):
 
     def __str__(self):
         return self.name
+
+    @property
+    def scores(self):
+        query = Game.objects.filter(user__team=self)\
+                .annotate(day=Trunc('date_created', 'day', output_field=models.DateField()))\
+                .values('day')\
+                .annotate(score=models.Sum('score'))\
+                .order_by('day')
+        return list(query)
 
 
 class User(AbstractUser):
