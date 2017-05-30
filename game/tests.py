@@ -1,3 +1,4 @@
+import logging
 import datetime
 from unittest import mock
 
@@ -8,6 +9,9 @@ from rest_framework.reverse import reverse
 
 from .factories import AdminUserFactory, PlayerUserFactory, GameFactory, TeamFactory
 from .models import User, Game
+
+
+logging.disable(logging.CRITICAL)
 
 
 class AuthenticatedTestMixin:
