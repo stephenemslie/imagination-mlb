@@ -4,8 +4,13 @@ from rest_framework.decorators import detail_route
 from django_filters.rest_framework import DjangoFilterBackend, FilterSet, CharFilter
 from django_fsm import can_proceed
 
-from .models import User, Game
-from .serializers import UserSerializer, GameSerializer, GameScoreSerializer
+from .models import User, Game, Team
+from .serializers import UserSerializer, GameSerializer, GameScoreSerializer, TeamSerializer
+
+
+class TeamViewSet(viewsets.ModelViewSet):
+    queryset = Team.objects.all()
+    serializer_class = TeamSerializer
 
 
 class UserFilter(FilterSet):
