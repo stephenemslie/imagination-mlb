@@ -23,6 +23,8 @@ class Team(models.Model):
                 .annotate(day=Trunc('date_created', 'day', output_field=models.DateField()))\
                 .values('day')\
                 .annotate(score=models.Sum('score'))\
+                .annotate(distance=models.Sum('distance'))\
+                .annotate(homeruns=models.Sum('homeruns'))\
                 .order_by('day')
         return list(query)
 

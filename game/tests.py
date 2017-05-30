@@ -183,22 +183,22 @@ class TestGameView(AuthenticatedTestMixin, APITestCase):
         self.team_1 = TeamFactory()
         self.team_2 = TeamFactory()
         for i in range(10):
-            game = GameFactory(state='completed', score=10)
+            game = GameFactory(state='completed', score=10, distance=10, homeruns=10)
             game.user.team = self.team_1
             game.user.save()
         for i in range(10):
-            game = GameFactory(state='completed', score=20)
+            game = GameFactory(state='completed', score=20, distance=20, homeruns=20)
             game.user.team = self.team_2
             game.user.save()
         yesterday = now() - datetime.timedelta(days=1)
         for i in range(20):
-            game = GameFactory(state='completed', score=10)
+            game = GameFactory(state='completed', score=10, distance=10, homeruns=10)
             game.date_created = yesterday
             game.user.team = self.team_1
             game.user.save()
             game.save()
         for i in range(10):
-            game = GameFactory(state='completed', score=10)
+            game = GameFactory(state='completed', score=10, distance=10, homeruns=10)
             game.date_created = yesterday
             game.user.team = self.team_2
             game.user.save()
@@ -208,6 +208,16 @@ class TestGameView(AuthenticatedTestMixin, APITestCase):
         team1_response = self.client.get(reverse('team-detail', args=(self.team_1.pk,)))
         team2_response = self.client.get(reverse('team-detail', args=(self.team_2.pk,)))
         self.assertEqual(team1_response.json()['scores'][0]['score'], 200)
+        self.assertEqual(team1_response.json()['scores'][0]['distance'], 200)
+        self.assertEqual(team1_response.json()['scores'][0]['homeruns'], 200)
         self.assertEqual(team1_response.json()['scores'][1]['score'], 100)
+        self.assertEqual(team1_response.json()['scores'][1]['distance'], 100)
+        self.assertEqual(team1_response.json()['scores'][1]['homeruns'], 100)
         self.assertEqual(team2_response.json()['scores'][0]['score'], 100)
+        self.assertEqual(team2_response.json()['scores'][0]['distance'], 100)
+        self.assertEqual(team2_response.json()['scores'][0]['homeruns'], 100)
         self.assertEqual(team2_response.json()['scores'][1]['score'], 200)
+        self.assertEqual(team2_response.json()['scores'][1]['distance'], 200)
+        self.assertEqual(team2_response.json()['scores'][1]['homeruns'], 200)
+        import ipdb;ipdb.set_trace()
+        pass
