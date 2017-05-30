@@ -24,11 +24,12 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     games = GameSerializer(many=True, read_only=True)
     active_game = GameSerializer(read_only=True)
     team = serializers.SlugRelatedField(required=False, slug_field='name', queryset=Team.objects.all())
+    team_url = serializers.HyperlinkedRelatedField(read_only=True, source='team', view_name='team-detail')
 
     class Meta:
         model = User
         fields = ('url', 'id', 'first_name', 'last_name', 'mobile_number',
-                  'email', 'games', 'active_game', 'team', 'image')
+                  'email', 'games', 'active_game', 'team', 'team_url', 'image')
 
     def create(self, validated_data):
         validated_data['username'] = validated_data['mobile_number']
