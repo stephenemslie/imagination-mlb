@@ -8,7 +8,7 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Team
-        fields = ('url', 'id', 'scores')
+        fields = ('url', 'id', 'name', 'scores')
 
 
 class GameSerializer(serializers.HyperlinkedModelSerializer):
