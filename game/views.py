@@ -1,8 +1,9 @@
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, filters
 from rest_framework.response import Response
 from rest_framework.decorators import detail_route
 from django_filters.rest_framework import DjangoFilterBackend, FilterSet, CharFilter
 from django_fsm import can_proceed
+from django.db.models import Sum
 
 from .models import User, Game, Team
 from .serializers import UserSerializer, GameSerializer, GameScoreSerializer, TeamSerializer
@@ -23,10 +24,11 @@ class UserFilter(FilterSet):
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
+    queryset = User.objects.all().annotate(score=Sum('games__score'))
     serializer_class = UserSerializer
-    filter_backends = (DjangoFilterBackend,)
+    filter_backends = (DjangoFilterBackend, filters.OrderingFilter)
     filter_class = UserFilter
+    ordering_fields = ('score',)
 
     def get_queryset(self):
         return self.queryset.filter(is_staff=False, is_superuser=False, is_active=True)
