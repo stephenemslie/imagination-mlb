@@ -167,6 +167,10 @@ AWS_REGION_NAME = env('AWS_REGION_NAME', default=None)
 CORS_ORIGIN_ALLOW_ALL=env.bool('CORS_ORIGIN_ALLOW_ALL', default=False)
 CORS_ORIGIN_WHITELIST=env.list('CORS_ORIGIN_WHITELIST', default='localhost:8000')
 
+JWT_AUTH = {
+    'JWT_VERIFY_EXPIRATION': False
+}
+
 if DEBUG is False:
     DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
     AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME', default='mlb-django')
