@@ -1,4 +1,6 @@
 from rest_framework import serializers
+from phonenumber_field.modelfields import PhoneNumberField
+
 from .models import User, Game, Team
 
 
@@ -25,6 +27,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     active_game = GameSerializer(read_only=True)
     team = serializers.SlugRelatedField(required=False, slug_field='name', queryset=Team.objects.all())
     team_url = serializers.HyperlinkedRelatedField(read_only=True, source='team', view_name='team-detail')
+    mobile_number = serializers.CharField(validators=PhoneNumberField().validators)
 
     class Meta:
         model = User
