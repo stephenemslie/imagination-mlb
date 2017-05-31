@@ -25,7 +25,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 
     games = GameSerializer(many=True, read_only=True)
     active_game = GameSerializer(read_only=True)
-    team = serializers.SlugRelatedField(required=False, slug_field='name', queryset=Team.objects.all())
+    team = serializers.SlugRelatedField(required=False, allow_null=True, slug_field='name', queryset=Team.objects.all())
     team_url = serializers.HyperlinkedRelatedField(read_only=True, source='team', view_name='team-detail')
     mobile_number = serializers.CharField(validators=PhoneNumberField().validators)
 
