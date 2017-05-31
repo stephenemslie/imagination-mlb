@@ -167,8 +167,9 @@ AWS_REGION_NAME = env('AWS_REGION_NAME', default=None)
 CORS_ORIGIN_ALLOW_ALL=env.bool('CORS_ORIGIN_ALLOW_ALL', default=False)
 CORS_ORIGIN_WHITELIST=env.list('CORS_ORIGIN_WHITELIST', default='localhost:8000')
 
+import datetime
 JWT_AUTH = {
-    'JWT_VERIFY_EXPIRATION': False
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=60*60*24)
 }
 
 if DEBUG is False:
