@@ -219,5 +219,3 @@ class TestGameView(AuthenticatedTestMixin, APITestCase):
         self.assertEqual(team2_response.json()['scores'][1]['score'], 200)
         self.assertEqual(team2_response.json()['scores'][1]['distance'], 200)
         self.assertEqual(team2_response.json()['scores'][1]['homeruns'], 200)
-        import ipdb;ipdb.set_trace()
-        pass
