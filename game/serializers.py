@@ -13,7 +13,7 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('url', 'id', 'name', 'scores')
 
 
-class GameSerializer(serializers.HyperlinkedModelSerializer):
+class GameSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Game
