@@ -17,8 +17,9 @@ class GameSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Game
-        fields = ('url', 'id', 'date_created', 'date_updated', 'distance',
-                  'homeruns', 'score', 'state')
+        fields = ('url', 'id', 'user', 'date_created', 'date_updated',
+                  'distance', 'homeruns', 'score', 'state')
+        read_only_fields = ('url', 'id', 'date_created', 'date_updated', 'state')
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
