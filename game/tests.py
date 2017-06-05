@@ -24,6 +24,57 @@ class AuthenticatedTestMixin:
         self.client.credentials(HTTP_AUTHORIZATION='JWT {}'.format(response.data['token']))
 
 
+class TestPlayerFields(AuthenticatedTestMixin, APITestCase):
+
+    def setUp(self):
+        super().setUp()
+        player = PlayerUserFactory.build()
+        team = TeamFactory()
+        self.data = {'first_name': player.first_name,
+                     'last_name': player.last_name,
+                     'mobile_number': player.mobile_number,
+                     'team': team.name,
+                     'handedness': player.handedness,
+                     'signed_waiver': True}
+
+    def test_create(self):
+        response = self.client.post(reverse('user-list'), self.data)
+        self.assertEqual(response.status_code, 201)
+
+    def test_handedness(self):
+        self.data.pop('handedness')
+        response = self.client.post(reverse('user-list'), self.data)
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('handedness', response.json())
+
+    def test_signed_waiver(self):
+        self.data.pop('signed_waiver')
+        response = self.client.post(reverse('user-list'), self.data)
+        self.assertEqual(response.status_code, 201)
+
+    def test_first_name(self):
+        self.data.pop('first_name')
+        response = self.client.post(reverse('user-list'), self.data)
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('first_name', response.json())
+
+    def test_last_name(self):
+        self.data.pop('last_name')
+        response = self.client.post(reverse('user-list'), self.data)
+        self.assertEqual(response.status_code, 201)
+
+    def test_mobile_number(self):
+        self.data.pop('mobile_number')
+        response = self.client.post(reverse('user-list'), self.data)
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('mobile_number', response.json())
+
+    def test_team(self):
+        self.data.pop('team')
+        response = self.client.post(reverse('user-list'), self.data)
+        self.assertEqual(response.status_code, 201)
+
+
 class TestGameStateActions(AuthenticatedTestMixin, APITestCase):
 
     def setUp(self):
