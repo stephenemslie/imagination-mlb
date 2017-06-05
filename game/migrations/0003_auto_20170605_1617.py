@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='user',
             name='handedness',
-            field=models.CharField(choices=[('L', 'Left'), ('R', 'Right')], default='R', max_length=1),
+            field=models.CharField(choices=[('L', 'Left'), ('R', 'Right')], default='R', max_length=1, null=True, blank=True),
             preserve_default=False,
         ),
         migrations.AddField(
