@@ -35,6 +35,8 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('url', 'id', 'first_name', 'last_name', 'mobile_number',
                   'email', 'games', 'active_game', 'team', 'team_url', 'image',
                   'handedness', 'signed_waiver')
+        extra_kwargs = {'handedness': {'required': True},
+                        'first_name': {'required': True}}
 
     def create(self, validated_data):
         validated_data['username'] = validated_data['mobile_number']
