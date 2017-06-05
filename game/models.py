@@ -35,6 +35,8 @@ class User(AbstractUser):
     is_finalist = models.BooleanField(default=False)
     team = models.ForeignKey(Team, null=True, blank=True)
     active_game = models.OneToOneField('Game', related_name='+', null=True, blank=True)
+    handedness = models.CharField(max_length=1, choices=(('L', 'Left'), ('R', 'Right')))
+    signed_waiver = models.BooleanField(default=False)
 
     def send_recall_sms(self):
         client = boto3.client('sns',
