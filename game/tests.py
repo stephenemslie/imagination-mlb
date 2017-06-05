@@ -95,6 +95,13 @@ class TestGameStateActions(AuthenticatedTestMixin, APITestCase):
         self.assertEqual(response.data['active_game']['id'], game.pk)
         self.assertEqual(game.state, 'new')
 
+    def test_second_game(self):
+        data = {'user': self.player.pk}
+        response = self.client.post(reverse('game-list'), data)
+        player = User.objects.get(pk=self.player.pk)
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(player.active_game.pk, response.json()['id'])
+
     def test_direct_confirm(self):
         response = self.client.post(reverse('game-confirm', args=(self.player.active_game.pk,)))
         game = Game.objects.get(pk=self.player.active_game.pk)

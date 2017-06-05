@@ -21,6 +21,12 @@ class GameSerializer(serializers.ModelSerializer):
                   'distance', 'homeruns', 'score', 'state')
         read_only_fields = ('url', 'id', 'date_created', 'date_updated', 'state')
 
+    def create(self, validated_data):
+        game = super().create(validated_data)
+        game.user.active_game = game
+        game.user.save()
+        return game
+
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
 
