@@ -2,6 +2,7 @@ import string
 import random
 
 import factory
+from factory.fuzzy import FuzzyChoice
 
 
 class TeamFactory(factory.django.DjangoModelFactory):
@@ -34,6 +35,7 @@ class PlayerUserFactory(factory.django.DjangoModelFactory):
     mobile_number = factory.LazyFunction(lambda: '+4477{}'.format(''.join(random.choices(string.digits, k=8))))
     username = factory.LazyAttribute(lambda obj: obj.mobile_number)
     team = factory.SubFactory(TeamFactory)
+    handedness = FuzzyChoice(('L', 'R'))
 
 
 class GameFactory(factory.django.DjangoModelFactory):
