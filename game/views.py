@@ -20,7 +20,7 @@ class UserFilter(FilterSet):
 
     class Meta:
         model = User
-        fields = ('state', 'is_finalist', 'team')
+        fields = ('state', 'is_finalist', 'team', 'handedness', 'signed_waiver')
 
 
 class UserViewSet(viewsets.ModelViewSet):
