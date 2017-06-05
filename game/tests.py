@@ -34,7 +34,10 @@ class TestGameStateActions(AuthenticatedTestMixin, APITestCase):
 
     def test_game_on_create(self):
         player = PlayerUserFactory.build()
-        data = {'first_name': player.first_name, 'mobile_number': player.mobile_number, 'team': self.team.name}
+        data = {'first_name': player.first_name,
+                'mobile_number': player.mobile_number,
+                'team': self.team.name,
+                'handedness': player.handedness}
         response = self.client.post(reverse('user-list'), data)
         user = User.objects.get(pk=response.data['id'])
         game = Game.objects.get(user=user)

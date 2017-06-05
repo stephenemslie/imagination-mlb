@@ -33,7 +33,8 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
         fields = ('url', 'id', 'first_name', 'last_name', 'mobile_number',
-                  'email', 'games', 'active_game', 'team', 'team_url', 'image')
+                  'email', 'games', 'active_game', 'team', 'team_url', 'image',
+                  'handedness', 'signed_waiver')
 
     def create(self, validated_data):
         validated_data['username'] = validated_data['mobile_number']
