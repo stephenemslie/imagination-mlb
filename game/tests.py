@@ -1,3 +1,4 @@
+from io import BytesIO
 import logging
 import datetime
 from unittest import mock
@@ -6,6 +7,7 @@ from django.conf import settings
 from django.utils.timezone import now
 from rest_framework.test import APITestCase
 from rest_framework.reverse import reverse
+from PIL import Image
 
 from .factories import AdminUserFactory, PlayerUserFactory, GameFactory, TeamFactory
 from .models import User, Game
@@ -280,3 +282,22 @@ class TestGameView(AuthenticatedTestMixin, APITestCase):
         self.assertEqual(team2_response.json()['scores'][1]['score'], 200)
         self.assertEqual(team2_response.json()['scores'][1]['distance'], 200)
         self.assertEqual(team2_response.json()['scores'][1]['homeruns'], 200)
+
+
+class TestMethodOverrideMiddleware(AuthenticatedTestMixin, APITestCase):
+
+    def test_image_upload(self):
+        user = PlayerUserFactory()
+        image = Image.new('RGBA', (100, 100), (255, 255, 255, 255))
+        f = BytesIO()
+        image.save(f, 'png')
+        f.seek(0)
+        f.name = 'test.png'
+        url = reverse('user-detail', args=(user.pk,))
+        data = {'image': f}
+        response = self.client.post(url, data=data, HTTP_X_HTTP_METHOD_OVERRIDE='PATCH')
+        user = User.objects.get(pk=user.pk)
+        f.seek(0)
+        self.assertIsNotNone(user.image)
+        self.assertEqual(user.image.read(), f.read())
+
