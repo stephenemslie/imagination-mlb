@@ -8,4 +8,4 @@ from .models import Game
 def recall_users(sender, instance, name, source, target, **kwargs):
     if target == 'completed':
         for game in Game.objects.next_recalls():
-            game.user.recall()
+            game.user.send_recall_sms()
