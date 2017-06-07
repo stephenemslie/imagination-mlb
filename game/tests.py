@@ -77,6 +77,27 @@ class TestPlayerFields(AuthenticatedTestMixin, APITestCase):
         self.assertEqual(response.status_code, 201)
 
 
+class TestGame(APITestCase):
+    
+    def test_confirm_sets_team(self):
+        team1 = TeamFactory()
+        team2 = TeamFactory()
+        user1 = PlayerUserFactory(team=team2)
+        user2 = PlayerUserFactory(team=team1)
+        user3 = PlayerUserFactory(team=team1)
+        user4 = PlayerUserFactory(team=None)
+        game = GameFactory(user=user4)
+        self.assertEqual(game.user.team, None)
+        game.confirm()
+        game.save()
+        self.assertEqual(game.user.team, team2)
+        PlayerUserFactory(team=team2)
+        user = PlayerUserFactory(team=None)
+        game = GameFactory(user=user)
+        game.confirm()
+        self.assertEqual(game.user.team, team1)
+
+
 class TestGameStateActions(AuthenticatedTestMixin, APITestCase):
 
     def setUp(self):

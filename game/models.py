@@ -1,6 +1,7 @@
 import datetime
 
 from django.db import models
+from django.db.models import Count
 from django.db.models.functions import Trunc
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
@@ -33,7 +34,7 @@ class User(AbstractUser):
     mobile_number = PhoneNumberField(unique=False)
     image = models.ImageField(null=True, blank=True)
     is_finalist = models.BooleanField(default=False)
-    team = models.ForeignKey(Team, null=True, blank=True)
+    team = models.ForeignKey(Team, null=True, blank=True, related_name='members')
     active_game = models.OneToOneField('Game', related_name='+', null=True, blank=True)
     handedness = models.CharField(max_length=1,
                                   choices=(('L', 'Left'), ('R', 'Right')),
@@ -91,7 +92,10 @@ class Game(models.Model):
 
     @transition(field=state, source=['new', 'recalled'], target='confirmed')
     def confirm(self):
-        pass
+        if not self.user.team:
+            query = Team.objects.annotate(member_count=Count('members')).order_by('member_count')
+            self.user.team = query[0]
+            self.user.save()
 
     @transition(field=state, source='queued', target='recalled')
     def recall(self):
