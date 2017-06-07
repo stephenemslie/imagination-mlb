@@ -97,6 +97,20 @@ class TestGame(APITestCase):
         game.confirm()
         self.assertEqual(game.user.team, team1)
 
+    def test_confirm_existing_team(self):
+        team1 = TeamFactory()
+        team2 = TeamFactory()
+        for i in range(5):
+            PlayerUserFactory(team=team2)
+        user = PlayerUserFactory(team=team2)
+        game = GameFactory(user=user)
+        self.assertEqual(user.team, team2)
+        game.confirm()
+        game.save()
+        game = Game.objects.get(pk=game.pk)
+        self.assertEqual(user.team, team2)
+
+
 
 class TestGameStateActions(AuthenticatedTestMixin, APITestCase):
 
