@@ -90,7 +90,7 @@ class Game(models.Model):
     def queue(self):
         pass
 
-    @transition(field=state, source=['new', 'recalled'], target='confirmed')
+    @transition(field=state, source=['new', 'queued', 'recalled'], target='confirmed')
     def confirm(self):
         if not self.user.team:
             query = Team.objects.annotate(member_count=Count('members')).order_by('member_count')
