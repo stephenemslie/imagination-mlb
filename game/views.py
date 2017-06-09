@@ -37,7 +37,10 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     filter_backends = (DjangoFilterBackend, filters.OrderingFilter)
     filter_class = UserFilter
-    ordering_fields = ('score',)
+    ordering_fields = ('score', 'date_updated', 'date_created',
+                       ('active_game__date_created', 'game_created'),
+                       ('active_game__date_updated', 'game_updated'))
+    ordering = 'active_game__date_updated'
 
     def get_queryset(self):
         return self.queryset.filter(is_staff=False, is_superuser=False, is_active=True)
