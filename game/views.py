@@ -1,9 +1,11 @@
+from django.db.models import Sum
+from django.db.models.functions import Trunc
+
 from rest_framework import viewsets, status, filters
 from rest_framework.response import Response
 from rest_framework.decorators import detail_route
-from django_filters.rest_framework import DjangoFilterBackend, FilterSet, CharFilter
+from django_filters.rest_framework import DjangoFilterBackend, FilterSet, CharFilter, DateFilter
 from django_fsm import can_proceed
-from django.db.models import Sum
 
 from .models import User, Game, Team
 from .serializers import UserSerializer, GameSerializer, GameScoreSerializer, TeamSerializer
@@ -15,12 +17,19 @@ class TeamViewSet(viewsets.ModelViewSet):
 
 
 class UserFilter(FilterSet):
+    game_created = DateFilter(name='active_game__date_created', method='filter_date')
+    game_updated = DateFilter(name='active_game__date_updated', method='filter_date')
     state = CharFilter(name='active_game__state')
     team = CharFilter(name='team__name')
 
     class Meta:
         model = User
         fields = ('state', 'is_finalist', 'team', 'handedness', 'signed_waiver')
+
+    def filter_date(self, queryset, name, value):
+        annotate_name = '{}_date'.format(name)
+        return queryset.annotate(**{annotate_name: Trunc(name, 'day')})\
+                       .filter(**{annotate_name: value})
 
 
 class UserViewSet(viewsets.ModelViewSet):
