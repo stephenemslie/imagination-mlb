@@ -192,10 +192,10 @@ class TestIllegalGameStateChanges(AuthenticatedTestMixin, APITestCase):
             self.assertEqual(response.status_code, 400)
 
     def test_confirm(self):
-        for state in ('queued', 'playing', 'complete'):
+        for state in ('playing', 'complete'):
             self.player.active_game = GameFactory(user=self.player, state=state)
             response = self.client.post(reverse('game-confirm', args=(self.player.active_game.pk,)))
-            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.status_code, 400)
 
     def test_play(self):
         for state in ('new', 'queued', 'recalled', 'completed'):
