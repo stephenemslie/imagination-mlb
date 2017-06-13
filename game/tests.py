@@ -11,6 +11,7 @@ from PIL import Image
 
 from .factories import AdminUserFactory, PlayerUserFactory, GameFactory, TeamFactory
 from .models import User, Game
+from .views import set_lighting
 
 
 logging.disable(logging.CRITICAL)
@@ -341,3 +342,9 @@ class TestMethodOverrideMiddleware(AuthenticatedTestMixin, APITestCase):
         self.assertIsNotNone(user.image)
         self.assertEqual(user.image.read(), f.read())
 
+
+class TestLighting(AuthenticatedTestMixin, APITestCase):
+
+    def test_stub(self):
+        response = self.client.post(reverse(set_lighting))
+        self.assertEqual(response.status_code, 200)
