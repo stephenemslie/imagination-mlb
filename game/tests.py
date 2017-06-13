@@ -134,7 +134,7 @@ class TestGameStateActions(AuthenticatedTestMixin, APITestCase):
         self.assertEqual(game.state, 'new')
 
     def test_second_game_requires_completion(self):
-        data = {'user': self.player.pk}
+        data = {'user_id': self.player.pk}
         response = self.client.post(reverse('game-list'), data)
         self.assertEqual(response.status_code, 400)
         self.player.active_game = GameFactory(user=self.player, state='completed')

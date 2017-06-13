@@ -13,29 +13,8 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('url', 'id', 'name', 'scores')
 
 
-class GameSerializer(serializers.ModelSerializer):
+class BaseUserSerializer(serializers.ModelSerializer):
 
-    class Meta:
-        model = Game
-        fields = ('url', 'id', 'user', 'date_created', 'date_updated',
-                  'distance', 'homeruns', 'score', 'state')
-        read_only_fields = ('url', 'id', 'date_created', 'date_updated', 'state')
-
-    def create(self, validated_data):
-        active_game = validated_data['user'].active_game
-        if active_game and active_game.state not in ('completed', 'cancelled'):
-            detail = "User's active game must be completed or cancelled first."
-            raise serializers.ValidationError(detail)
-        game = super().create(validated_data)
-        game.user.active_game = game
-        game.user.save()
-        return game
-
-
-class UserSerializer(serializers.HyperlinkedModelSerializer):
-
-    games = GameSerializer(many=True, read_only=True)
-    active_game = GameSerializer(read_only=True)
     team = serializers.SlugRelatedField(required=False, allow_null=True, slug_field='name', queryset=Team.objects.all())
     team_url = serializers.HyperlinkedRelatedField(read_only=True, source='team', view_name='team-detail')
     mobile_number = serializers.CharField(validators=PhoneNumberField().validators)
@@ -55,6 +34,37 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         user.active_game = game
         user.save()
         return user
+
+
+class BaseGameSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Game
+        fields = ('url', 'id', 'user', 'user_id', 'date_created', 'date_updated',
+                  'distance', 'homeruns', 'score', 'state')
+        read_only_fields = ('url', 'id', 'date_created', 'date_updated', 'state')
+
+
+class GameSerializer(BaseGameSerializer):
+
+    user = BaseUserSerializer(read_only=True)
+    user_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+
+    def create(self, validated_data):
+        active_game = validated_data['user_id'].active_game
+        if active_game and active_game.state not in ('completed', 'cancelled'):
+            detail = "User's active game must be completed or cancelled first."
+            raise serializers.ValidationError(detail)
+        game = super().create({'user': validated_data['user_id']})
+        game.user.active_game = game
+        game.user.save()
+        return game
+
+
+class UserSerializer(BaseUserSerializer):
+
+    games = BaseGameSerializer(many=True, read_only=True)
+    active_game = BaseGameSerializer(read_only=True)
 
 
 class GameScoreSerializer(serializers.Serializer):
