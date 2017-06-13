@@ -110,6 +110,14 @@ class GameViewSet(viewsets.ModelViewSet):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    @detail_route(methods=['POST'])
+    def cancel(self, request, pk=None):
+        game = self.get_object()
+        game.cancel()
+        game.save()
+        serializer = self.get_serializer(game)
+        return Response(serializer.data)
+
 
 @api_view(['POST'])
 def set_lighting(request):

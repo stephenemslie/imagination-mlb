@@ -175,6 +175,14 @@ class TestGameStateActions(AuthenticatedTestMixin, APITestCase):
         game = Game.objects.get(pk=self.player.active_game.pk)
         self.assertEqual(game.state, 'playing')
 
+    def test_cancel(self):
+        for state in ('new', 'queued', 'recalled', 'confirmed', 'playing'):
+            game = GameFactory(state=state)
+            response = self.client.post(reverse('game-cancel', args=(game.pk,)))
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.json()['state'], 'cancelled')
+            self.assertEqual(Game.objects.get(pk=game.pk).state, 'cancelled')
+
 
 class TestIllegalGameStateChanges(AuthenticatedTestMixin, APITestCase):
 

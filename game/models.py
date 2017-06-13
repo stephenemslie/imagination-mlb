@@ -111,3 +111,7 @@ class Game(models.Model):
         self.score = score
         self.distance = distance
         self.homeruns = homeruns
+
+    @transition(field=state, source='*', target='cancelled')
+    def cancel(self):
+        pass
