@@ -79,7 +79,7 @@ class TestPlayerFields(AuthenticatedTestMixin, APITestCase):
 
 
 class TestGame(APITestCase):
-    
+
     def test_confirm_sets_team(self):
         team1 = TeamFactory()
         team2 = TeamFactory()
@@ -110,7 +110,6 @@ class TestGame(APITestCase):
         game.save()
         game = Game.objects.get(pk=game.pk)
         self.assertEqual(user.team, team2)
-
 
 
 class TestGameStateActions(AuthenticatedTestMixin, APITestCase):
