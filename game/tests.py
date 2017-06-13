@@ -118,6 +118,7 @@ class TestGameStateActions(AuthenticatedTestMixin, APITestCase):
         super().setUp()
         self.player = PlayerUserFactory()
         self.player.active_game = GameFactory(user=self.player)
+        self.player.save()
         self.team = TeamFactory()
 
     def test_game_on_create(self):
@@ -132,8 +133,12 @@ class TestGameStateActions(AuthenticatedTestMixin, APITestCase):
         self.assertEqual(response.data['active_game']['id'], game.pk)
         self.assertEqual(game.state, 'new')
 
-    def test_second_game(self):
+    def test_second_game_requires_completion(self):
         data = {'user': self.player.pk}
+        response = self.client.post(reverse('game-list'), data)
+        self.assertEqual(response.status_code, 400)
+        self.player.active_game = GameFactory(user=self.player, state='completed')
+        self.player.save()
         response = self.client.post(reverse('game-list'), data)
         player = User.objects.get(pk=self.player.pk)
         self.assertEqual(response.status_code, 201)

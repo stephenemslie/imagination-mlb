@@ -22,6 +22,10 @@ class GameSerializer(serializers.ModelSerializer):
         read_only_fields = ('url', 'id', 'date_created', 'date_updated', 'state')
 
     def create(self, validated_data):
+        active_game = validated_data['user'].active_game
+        if active_game and active_game.state not in ('completed', 'cancelled'):
+            detail = "User's active game must be completed or cancelled first."
+            raise serializers.ValidationError(detail)
         game = super().create(validated_data)
         game.user.active_game = game
         game.user.save()
