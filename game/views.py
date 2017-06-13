@@ -2,6 +2,7 @@ from django.db.models import Sum
 from django.db.models.functions import Trunc
 
 from rest_framework import viewsets, status, filters
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.decorators import detail_route
 from django_filters.rest_framework import DjangoFilterBackend, FilterSet, CharFilter, DateFilter
@@ -108,3 +109,8 @@ class GameViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+def set_lighting(request):
+    return Response({'Succes': True})
