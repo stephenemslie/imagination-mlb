@@ -253,38 +253,85 @@ class TestCompleteGame(AuthenticatedTestMixin, APITestCase):
         self.assertEqual(self._send.call_args[1]['target'], 'completed')
 
 
+class TestRecallUsersSignal(APITestCase):
+
+    def setUp(self):
+        super().setUp()
+        for i in range(10):
+            GameFactory(state='queued')
+
+    def _recall_users(self):
+        with mock.patch.object(User, 'send_recall_sms') as _send_recall_sms:
+            with self.settings(RECALL_DISABLE=False):
+                recall_users(sender=mock.Mock(),
+                             instance=mock.Mock(),
+                             name=mock.Mock(),
+                             source=mock.Mock(),
+                             target='completed')
+        return _send_recall_sms
+
+    def test_send_recall_sms(self):
+        with self.settings(RECALL_WINDOW_SIZE=5):
+            _send_recall_sms = self._recall_users()
+            self.assertEqual(_send_recall_sms.call_count, 5)
+
+    def test_recalled_state(self):
+        query = Game.objects.filter(state='recalled')
+        self.assertEqual(query.count(), 0)
+        with self.settings(RECALL_WINDOW_SIZE=5):
+            self._recall_users()
+        self.assertEqual(query.count(), 5)
+
+
+
 class TestRecall(APITestCase):
 
     def setUp(self):
-        expired_time = now() - datetime.timedelta(minutes=settings.RECALL_WINDOW_MINUTES + 1)
+        self.expired_time = now() - datetime.timedelta(minutes=settings.RECALL_WINDOW_MINUTES + 1)
         GameFactory(state='new')
-        for i in range(10):
-            GameFactory(state='queued')
-        self.old_game = GameFactory(state='queued')
-        self.old_game.date_created = now() - datetime.timedelta(days=10)
-        self.old_game.save()
-        GameFactory(state='confirmed')
-        GameFactory(state='playing')
-        GameFactory(state='completed')
-        GameFactory(state='recalled')
-        GameFactory(state='recalled')
-        game = GameFactory(state='recalled')
-        Game.objects.filter(pk=game.pk).update(date_updated=expired_time)
 
     def test_active_recalls(self):
+        """Test active_recalls.
+
+        Create 3 games in recalled state: 2 active, 1 expired. Test that games
+        expire.
+        """
+        for state in ('new', 'confirmed', 'playing', 'completed', 'cancelled',
+                      'recalled', 'recalled', 'recalled'):
+            game = GameFactory(state=state)
+        self.assertEqual(Game.objects.active_recalls().count(), 3)
+        Game.objects.filter(pk=game.pk).update(date_updated=self.expired_time)
         self.assertEqual(Game.objects.active_recalls().count(), 2)
 
     def test_next_recalls(self):
+        """Test next_recalls.
+
+        Create 3 games in recalled state: 2 active, 1 expired. Adjust the
+        recall window to test.
+        """
+        for state in ('new', 'confirmed', 'playing', 'completed', 'cancelled',
+                      'recalled', 'recalled', 'recalled'):
+            game = GameFactory(state=state)
+        Game.objects.filter(pk=game.pk).update(date_updated=self.expired_time)
+        for i in range(10):
+            GameFactory(state='queued')
+        with self.settings(RECALL_WINDOW_SIZE=1):
+            self.assertEqual(Game.objects.next_recalls().count(), 0)
+        with self.settings(RECALL_WINDOW_SIZE=2):
+            self.assertEqual(Game.objects.next_recalls().count(), 0)
         with self.settings(RECALL_WINDOW_SIZE=3):
             self.assertEqual(Game.objects.next_recalls().count(), 1)
         with self.settings(RECALL_WINDOW_SIZE=4):
             self.assertEqual(Game.objects.next_recalls().count(), 2)
-        with self.settings(RECALL_WINDOW_SIZE=1):
-            self.assertEqual(Game.objects.next_recalls().count(), 0)
 
     def test_queue_order(self):
+        games = []
+        for i in reversed(range(10)):
+            game = GameFactory(state='queued')
+            game.date_created = now() - datetime.timedelta(minutes=i)
+            games.append(game)
         with self.settings(RECALL_WINDOW_SIZE=3):
-            self.assertEqual(list(Game.objects.next_recalls()), [self.old_game])
+            self.assertEqual(list(Game.objects.next_recalls()), games[:3])
 
 
 class TestGameView(AuthenticatedTestMixin, APITestCase):
