@@ -12,6 +12,7 @@ from PIL import Image
 from .factories import AdminUserFactory, PlayerUserFactory, GameFactory, TeamFactory
 from .models import User, Game
 from .views import set_lighting
+from .signals import recall_users
 
 
 logging.disable(logging.CRITICAL)
