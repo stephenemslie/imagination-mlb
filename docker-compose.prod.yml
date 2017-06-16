@@ -30,8 +30,8 @@ services:
         environment:
             DEBUG: 'False'
             GUNICORN_CMD_ARGS: '--bind=0.0.0.0:8000 --workers=2'
-            VIRTUAL_HOST: ec2-34-253-189-189.eu-west-1.compute.amazonaws.com
-            DJANGO_ALLOWED_HOSTS: ec2-34-253-189-189.eu-west-1.compute.amazonaws.com
+            VIRTUAL_HOST: ec2-52-210-134-162.eu-west-1.compute.amazonaws.com
+            DJANGO_ALLOWED_HOSTS: ec2-52-210-134-162.eu-west-1.compute.amazonaws.com
         depends_on:
             - postgres
             - nginx
