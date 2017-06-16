@@ -9,6 +9,10 @@ services:
             - "/var/run/docker.sock:/tmp/docker.sock:ro"
     postgres:
         restart: always
+        deploy:
+            placement:
+                constraints:
+                    - node.role == manager
     postgres-backup:
         image: schickling/postgres-backup-s3
         env_file: .env
@@ -33,3 +37,5 @@ services:
             - nginx
         command: gunicorn
         restart: always
+        deploy:
+            mode: global
