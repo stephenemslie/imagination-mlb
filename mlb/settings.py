@@ -164,7 +164,7 @@ RECALL_SENDER_ID = env('RECALL_SENDER_ID', default='MLB')
 
 AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID', default=None)
 AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY', default=None)
-AWS_REGION_NAME = env('AWS_REGION_NAME', default=None)
+AWS_REGION_NAME = env('AWS_REGION_NAME', default='eu-west-1')
 AWS_S3_FILE_OVERWRITE = False
 
 CORS_ORIGIN_ALLOW_ALL=env.bool('CORS_ORIGIN_ALLOW_ALL', default=False)
