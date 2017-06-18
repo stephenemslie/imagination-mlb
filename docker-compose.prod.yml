@@ -23,6 +23,7 @@ services:
                 constraints:
                     - node.role == manager
     postgres-backup:
+        image: localhost:5000/postgres-backup-s3:latest
         build:
             context: ./postgres_backup
         depends_on:
