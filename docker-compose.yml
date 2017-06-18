@@ -17,8 +17,6 @@ services:
             - AWS_ACCESS_KEY_ID
             - AWS_SECRET_ACCESS_KEY
             - AWS_SECRET_ACCESS_KEY
-            - S3_SECRET_ACCESS_KEY
-            - S3_ACCESS_KEY_ID
 
 secrets:
     SECRET_KEY:
@@ -28,8 +26,4 @@ secrets:
     AWS_ACCESS_KEY_ID:
         file: ./secrets/aws_access_key_id
     AWS_SECRET_ACCESS_KEY:
-        file: ./secrets/aws_secret_access_key
-    S3_ACCESS_KEY_ID:
-        file: ./secrets/aws_access_key_id
-    S3_SECRET_ACCESS_KEY:
         file: ./secrets/aws_secret_access_key

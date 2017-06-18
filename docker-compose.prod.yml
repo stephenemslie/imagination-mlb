@@ -23,8 +23,8 @@ services:
                 constraints:
                     - node.role == manager
     postgres-backup:
-        image: schickling/postgres-backup-s3
-        env_file: .env
+        build:
+            context: ./postgres_backup
         depends_on:
             - postgres
         environment:
@@ -34,9 +34,10 @@ services:
             POSTGRES_DATABASE: postgres
             POSTGRES_USER: postgres
             POSTGRES_HOST: postgres
-        command: export POSTGRES_PASSWORD=`cat /run/secrets/POSTGRES_PASSWORD` && run.sh
         secrets:
             - POSTGRES_PASSWORD
+            - S3_SECRET_ACCESS_KEY
+            - S3_ACCESS_KEY_ID
 
     django:
         image: localhost:5000/mlb_django:latest
