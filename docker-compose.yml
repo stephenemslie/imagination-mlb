@@ -13,3 +13,25 @@ services:
         environment:
             DJANGO_SETTINGS_MODULE: 'mlb.settings'
         command: runserver
+        secrets:
+            - SECRET_KEY
+            - DATABASE_URL
+            - AWS_ACCESS_KEY_ID
+            - AWS_SECRET_ACCESS_KEY
+            - AWS_SECRET_ACCESS_KEY
+            - S3_SECRET_ACCESS_KEY
+            - S3_ACCESS_KEY_ID
+
+secrets:
+    SECRET_KEY:
+        file: ./secrets/secret_key
+    DATABASE_URL:
+        file: ./secrets/database_url
+    AWS_ACCESS_KEY_ID:
+        file: ./secrets/aws_access_key_id
+    AWS_SECRET_ACCESS_KEY:
+        file: ./secrets/aws_secret_access_key
+    S3_ACCESS_KEY_ID:
+        file: ./secrets/aws_access_key_id
+    S3_SECRET_ACCESS_KEY:
+        file: ./secrets/aws_secret_access_key

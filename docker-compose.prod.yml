@@ -48,3 +48,17 @@ services:
         restart: always
         deploy:
             mode: global
+
+secrets:
+    SECRET_KEY:
+        external: true
+    DATABASE_URL:
+        external: true
+    AWS_ACCESS_KEY_ID:
+        external: true
+    AWS_SECRET_ACCESS_KEY:
+        external: true
+    S3_ACCESS_KEY_ID:
+        external: true
+    S3_SECRET_ACCESS_KEY:
+        external: true
