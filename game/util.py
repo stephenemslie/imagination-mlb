@@ -17,5 +17,5 @@ class Env(environ.Env):
         """
         path = os.path.join(self.secrets_path, value)
         if os.path.exists(path):
-            return open(path).read()
+            return open(path).read().rstrip()
         return super().get_value(value, **kwargs)
