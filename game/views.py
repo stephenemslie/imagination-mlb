@@ -12,12 +12,20 @@ from .models import User, Game, Team
 from .serializers import UserSerializer, GameSerializer, GameScoreSerializer, TeamSerializer
 
 
+class DateFilterMixin:
+
+    def filter_date(self, queryset, name, value):
+        annotate_name = '{}_date'.format(name)
+        return queryset.annotate(**{annotate_name: Trunc(name, 'day')})\
+                       .filter(**{annotate_name: value})
+
+
 class TeamViewSet(viewsets.ModelViewSet):
     queryset = Team.objects.all()
     serializer_class = TeamSerializer
 
 
-class UserFilter(FilterSet):
+class UserFilter(FilterSet, DateFilterMixin):
     game_created = DateFilter(name='active_game__date_created', method='filter_date')
     game_updated = DateFilter(name='active_game__date_updated', method='filter_date')
     state = CharFilter(name='active_game__state')
@@ -26,11 +34,6 @@ class UserFilter(FilterSet):
     class Meta:
         model = User
         fields = ('state', 'is_finalist', 'team', 'handedness', 'signed_waiver')
-
-    def filter_date(self, queryset, name, value):
-        annotate_name = '{}_date'.format(name)
-        return queryset.annotate(**{annotate_name: Trunc(name, 'day')})\
-                       .filter(**{annotate_name: value})
 
 
 class UserViewSet(viewsets.ModelViewSet):
