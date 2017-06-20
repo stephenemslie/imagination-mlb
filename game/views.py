@@ -50,9 +50,21 @@ class UserViewSet(viewsets.ModelViewSet):
         return self.queryset.filter(is_staff=False, is_superuser=False, is_active=True)
 
 
+class GameFilter(FilterSet, DateFilterMixin):
+    date_created = DateFilter(method='filter_date')
+    date_updated = DateFilter(method='filter_date')
+
+    class Meta:
+        model = Game
+        fields = ('state', 'date_created', 'date_updated')
+
+
 class GameViewSet(viewsets.ModelViewSet):
     queryset = Game.objects.all()
     serializer_class = GameSerializer
+    filter_backends = (DjangoFilterBackend, filters.OrderingFilter)
+    ordering_fields = ('score',)
+    filter_class = GameFilter
 
     @detail_route(methods=['POST'])
     def confirm(self, request, pk=None):
