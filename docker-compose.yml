@@ -3,6 +3,10 @@ version: '3.2'
 services:
     postgres:
         image: postgres:9.6.2
+        environment:
+            POSTGRES_PASSWORD_FILE: '/run/secrets/POSTGRES_PASSWORD'
+        secrets:
+            - POSTGRES_PASSWORD
 
     django:
         build: .
@@ -26,3 +30,5 @@ secrets:
         file: ./secrets/aws_access_key_id
     AWS_SECRET_ACCESS_KEY:
         file: ./secrets/aws_secret_access_key
+    POSTGRES_PASSWORD:
+        file: ./secrets/postgres_password
