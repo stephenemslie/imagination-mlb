@@ -37,7 +37,7 @@ services:
             DEBUG: 'False'
             GUNICORN_CMD_ARGS: '--bind=0.0.0.0:8000 --workers=2'
             VIRTUAL_HOST: mlb-queue.imagination.net
-            DJANGO_ALLOWED_HOSTS: mlb-queue.imagination.net
+            DJANGO_ALLOWED_HOSTS: "*"
             CORS_ORIGIN_ALLOW_ALL: 'True'
         depends_on:
             - postgres
