@@ -9,6 +9,8 @@ services:
             - "/var/run/docker.sock:/tmp/docker.sock:ro"
     postgres:
         restart: always
+        volumes:
+            - "pgdata:/var/lib/postgresql/data"
         deploy:
             placement:
                 constraints:
