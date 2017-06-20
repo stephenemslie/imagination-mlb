@@ -55,14 +55,14 @@ secrets:
     DATABASE_URL:
         external: true
     POSTGRES_PASSWORD:
-        external: true
+        file: ./secrets/postgres_password
     AWS_ACCESS_KEY_ID:
         external: true
     AWS_SECRET_ACCESS_KEY:
         external: true
     S3_ACCESS_KEY_ID:
-        external: true
+        file: ./secrets/aws_access_key_id
     S3_SECRET_ACCESS_KEY:
-        external: true
+        file: ./secrets/aws_secret_access_key
     SLACK_TOKEN:
         external: true
