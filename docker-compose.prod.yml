@@ -24,7 +24,7 @@ services:
         environment:
             SCHEDULE: "@daily"
             S3_BUCKET: mlb-backups
-            S3_PREFIX: 'postgresql'
+            S3_PREFIX: 'postgresql-nuc'
             POSTGRES_DATABASE: postgres
             POSTGRES_USER: postgres
             POSTGRES_HOST: postgres
