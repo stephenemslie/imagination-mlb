@@ -39,6 +39,8 @@ services:
             VIRTUAL_HOST: mlb-queue.imagination.net
             DJANGO_ALLOWED_HOSTS: "*"
             CORS_ORIGIN_ALLOW_ALL: 'True'
+        ports:
+            - "8000:8000"
         depends_on:
             - postgres
             - nginx
