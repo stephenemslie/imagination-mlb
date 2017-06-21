@@ -4,6 +4,18 @@ from phonenumber_field.modelfields import PhoneNumberField
 from .models import User, Game, Team
 
 
+class AuthenticatedFieldsMixin:
+
+    def to_representation(self, obj):
+        data = super().to_representation(obj)
+        user = self.context['request'].user
+        auth_fields = getattr(self.Meta, 'auth_fields', [])
+        if user and not user.is_staff:
+            for field in auth_fields:
+                data.pop(field)
+        return data
+
+
 class TeamSerializer(serializers.HyperlinkedModelSerializer):
 
     scores = serializers.ListField(serializers.DictField(child=serializers.DateField()))
@@ -13,7 +25,7 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('url', 'id', 'name', 'scores')
 
 
-class BaseUserSerializer(serializers.ModelSerializer):
+class BaseUserSerializer(AuthenticatedFieldsMixin, serializers.ModelSerializer):
 
     team = serializers.SlugRelatedField(required=False, allow_null=True, slug_field='name', queryset=Team.objects.all())
     team_url = serializers.HyperlinkedRelatedField(read_only=True, source='team', view_name='team-detail')
@@ -26,6 +38,7 @@ class BaseUserSerializer(serializers.ModelSerializer):
                   'handedness', 'signed_waiver')
         extra_kwargs = {'handedness': {'required': True},
                         'first_name': {'required': True}}
+        auth_fields = ('mobile_number', 'email')
 
     def create(self, validated_data):
         validated_data['username'] = validated_data['mobile_number']
