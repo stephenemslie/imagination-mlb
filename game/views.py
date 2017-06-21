@@ -7,9 +7,11 @@ from rest_framework.response import Response
 from rest_framework.decorators import detail_route
 from django_filters.rest_framework import DjangoFilterBackend, FilterSet, CharFilter, DateFilter
 from django_fsm import can_proceed
+from DmxPy import DmxPy
 
 from .models import User, Game, Team
-from .serializers import UserSerializer, GameSerializer, GameScoreSerializer, TeamSerializer
+from .serializers import (UserSerializer, GameSerializer, GameScoreSerializer,
+                          TeamSerializer, LightingSerializer)
 
 
 class DateFilterMixin:
@@ -136,4 +138,13 @@ class GameViewSet(viewsets.ModelViewSet):
 
 @api_view(['POST'])
 def set_lighting(request):
-    return Response({'Succes': True})
+    serializer = LightingSerializer(data=request.data)
+    if serializer.is_valid():
+        dmx = DmxPy(settings.DMX_PATH)
+        event = serializer.data['event']
+        for channel, value in enumerate(settings.DMX_EVENTS[event]):
+            dmx.setChannel(i, value)
+        dmx.render()
+        return Response({'received': event})
+    else:
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
