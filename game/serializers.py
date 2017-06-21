@@ -85,3 +85,8 @@ class GameScoreSerializer(serializers.Serializer):
     score = serializers.IntegerField()
     distance = serializers.IntegerField()
     homeruns = serializers.IntegerField()
+
+
+class LightingSerializer(serializers.Serializer):
+
+    event = serializers.ChoiceField(choices=('LA', 'Boston', 'attractor'))
