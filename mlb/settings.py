@@ -175,7 +175,7 @@ JWT_AUTH = {
     'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=60*60*24)
 }
 
-DMX_PATH = env('DMX_PATH', default='/dev/serial/by-id/usb-ENTTEC_DMX_USB_PRO_EN211286-if00-port0')
+DMX_PATH = env('DMX_PATH', default='/dev/ttyUSB0')
 DMX_EVENTS = {'LA': (135, 209, 24),
               'Boston': (199, 15, 51),
               'attractor': (5, 205, 125)}

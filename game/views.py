@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import detail_route
 from django_filters.rest_framework import DjangoFilterBackend, FilterSet, CharFilter, DateFilter
 from django_fsm import can_proceed
-import pysimpledmx
+from pysimpledmx.pysimpledmx import DMXConnection
 
 from .models import User, Game, Team
 from .serializers import (UserSerializer, GameSerializer, GameScoreSerializer,
@@ -143,7 +143,7 @@ def set_lighting(request):
     serializer = LightingSerializer(data=request.data)
     if serializer.is_valid():
         event = serializer.data['event']
-        dmx = pysimpledmx.DMXConnection('/dev/host-dmx')
+        dmx = DMXConnection(settings.DMX_PATH)
         for channel, value in enumerate(settings.DMX_EVENTS[event]):
             dmx.setChannel(channel+1, value)
         dmx.render()
