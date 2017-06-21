@@ -15,4 +15,4 @@ psycopg2==2.7.1
 boto3==1.4.4
 gunicorn==19.7.1
 factory-boy==2.8.1
-pysimpledmx==0.1.1
+git+https://github.com/tobypatterson/pySimpleDMX.git#egg=pysimpledmx
