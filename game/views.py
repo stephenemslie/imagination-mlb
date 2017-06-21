@@ -1,5 +1,6 @@
 from django.db.models import Sum
 from django.db.models.functions import Trunc
+from django.conf import settings
 
 from rest_framework import viewsets, status, filters
 from rest_framework.decorators import api_view
