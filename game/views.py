@@ -145,7 +145,7 @@ def set_lighting(request):
         event = serializer.data['event']
         dmx = DMXConnection(settings.DMX_PATH)
         for channel, value in enumerate(settings.DMX_EVENTS[event]):
-            dmx.setChannel(channel+1, value)
+            dmx.setChannel(channel+2, value)
         dmx.render()
         return Response({'received': event})
     else:
