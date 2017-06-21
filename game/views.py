@@ -54,10 +54,11 @@ class UserViewSet(viewsets.ModelViewSet):
 class GameFilter(FilterSet, DateFilterMixin):
     date_created = DateFilter(method='filter_date')
     date_updated = DateFilter(method='filter_date')
+    team = CharFilter(name='user__team__name')
 
     class Meta:
         model = Game
-        fields = ('state', 'date_created', 'date_updated')
+        fields = ('state', 'date_created', 'date_updated', 'team')
 
 
 class GameViewSet(viewsets.ModelViewSet):
