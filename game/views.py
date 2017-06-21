@@ -139,11 +139,9 @@ class GameViewSet(viewsets.ModelViewSet):
 def set_lighting(request):
     serializer = LightingSerializer(data=request.data)
     if serializer.is_valid():
-        dmx = DmxPy(settings.DMX_PATH)
         event = serializer.data['event']
         for channel, value in enumerate(settings.DMX_EVENTS[event]):
-            dmx.setChannel(i, value)
-        dmx.render()
+            pass
         return Response({'received': event})
     else:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
