@@ -41,6 +41,8 @@ services:
             VIRTUAL_HOST: mlb-queue.imagination.net
             DJANGO_ALLOWED_HOSTS: "*"
             CORS_ORIGIN_ALLOW_ALL: 'True'
+        volumes:
+            - /dev/serial/by-id/usb-ENTTEC_DMX_USB_PRO_EN211286-if00-port0:/dev/host-dmx
         ports:
             - "8000:8000"
         depends_on:
