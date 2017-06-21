@@ -15,5 +15,3 @@ psycopg2==2.7.1
 boto3==1.4.4
 gunicorn==19.7.1
 factory-boy==2.8.1
-pyserial==3.3
-git@github.com:davepaul0/DmxPy.git#egg=dmxpy

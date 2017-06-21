@@ -7,7 +7,6 @@ from rest_framework.response import Response
 from rest_framework.decorators import detail_route
 from django_filters.rest_framework import DjangoFilterBackend, FilterSet, CharFilter, DateFilter
 from django_fsm import can_proceed
-from DmxPy import DmxPy
 
 from .models import User, Game, Team
 from .serializers import (UserSerializer, GameSerializer, GameScoreSerializer,
