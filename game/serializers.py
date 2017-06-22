@@ -89,4 +89,4 @@ class GameScoreSerializer(serializers.Serializer):
 
 class LightingSerializer(serializers.Serializer):
 
-    event = serializers.ChoiceField(choices=('LA', 'Boston', 'attractor'))
+    event = serializers.ChoiceField(choices=('LA', 'Boston', 'attractor', 'in-game'))

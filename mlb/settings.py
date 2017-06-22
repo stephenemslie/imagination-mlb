@@ -176,9 +176,10 @@ JWT_AUTH = {
 }
 
 DMX_PATH = env('DMX_PATH', default='/dev/ttyUSB0')
-DMX_EVENTS = {'LA': (135, 209, 24),
-              'Boston': (199, 15, 51),
-              'attractor': (5, 205, 125)}
+DMX_EVENTS = {'LA': (1, 11),
+              'Boston': (1, 15),
+              'attractor': (1, 2),
+              'in-game': (1, 8)}
 
 if DEBUG is False:
     DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
