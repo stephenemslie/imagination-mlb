@@ -20,7 +20,7 @@ class Team(models.Model):
 
     @property
     def scores(self):
-        query = Game.objects.filter(user__team=self)\
+        query = Game.objects.filter(user__team=self, state='completed')\
                 .annotate(day=Trunc('date_created', 'day', output_field=models.DateField()))\
                 .values('day')\
                 .annotate(score=models.Sum('score'))\
