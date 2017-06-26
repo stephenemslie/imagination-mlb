@@ -9,7 +9,10 @@ services:
             - POSTGRES_PASSWORD
 
     django:
-        build: .
+        build:
+            context: .
+            args:
+                - RELEASE_AUTH
         depends_on:
             - postgres
         environment:
