@@ -16,6 +16,11 @@ if [ "$1" = 'gunicorn' ]; then
     exec gunicorn mlb.wsgi
 fi
 
+if [ "$1" = 'celery' ]; then
+    bin/wait-for-it.sh postgres:5432 -- python3 manage.py migrate --noinput
+    exec celery -A mlb worker -l info
+fi
+
 if [ "$1" = 'shell' ]; then
     exec /bin/bash
 fi
