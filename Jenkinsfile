@@ -20,12 +20,7 @@ pipeline {
             }
         }
         stage('Deploy') {
-            when {
-                expression {
-                    GIT_BRANCH=sh(returnStdout: true, script: 'git rev-parse --abbrev-ref HEAD').trim()
-                    return GIT_BRANCH == 'master'
-                }
-            }
+            when { branch 'master' }
             steps {
                 sh 'docker tag mlb_django:latest $DJANGO_TAG'
                 sh 'docker push $DJANGO_TAG'
