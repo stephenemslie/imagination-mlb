@@ -7,8 +7,7 @@ pipeline {
         stage('Build') {
             steps {
                 sh 'curl -L https://github.com/docker/compose/releases/download/1.14.0/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose && chmod +x /usr/local/bin/docker-compose'
-                sh 'docker-compose build django postgres-backup'
-                sh 'docker-compose push django postgres-backup'
+                sh 'docker-compose build django'
             }
         }
         stage('Test') {
@@ -18,7 +17,8 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-                sh 'docker-compose up -d --no-deps django'
+                sh 'docker-compose push django'
+                sh 'docker service update --image localhost:5000/mlb_django:latest django-master'
             }
         }
     }
