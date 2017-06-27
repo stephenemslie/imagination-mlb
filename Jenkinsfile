@@ -15,7 +15,7 @@ pipeline {
         }
         stage('Test') {
             steps {
-                sh 'docker-compose -f docker-compose.yml run -e DATABASE_URL=psql://postgres:postgres@postgres:5432/postgres -e SECRET_KEY=testrun --rm django test'
+                sh 'docker-compose stop && docker-compose rm -f'
             }
         }
         stage('Deploy') {
