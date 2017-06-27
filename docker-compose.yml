@@ -6,10 +6,7 @@ services:
 
     django:
         image: mlb_django:latest
-        build:
-            context: .
-            args:
-                - RELEASE_AUTH
+        build: .
         depends_on:
             - postgres
         environment:
