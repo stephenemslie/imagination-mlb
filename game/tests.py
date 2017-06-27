@@ -396,10 +396,3 @@ class TestMethodOverrideMiddleware(AuthenticatedTestMixin, APITestCase):
         f.seek(0)
         self.assertIsNotNone(user.image)
         self.assertEqual(user.image.read(), f.read())
-
-
-class TestLighting(AuthenticatedTestMixin, APITestCase):
-
-    def test_stub(self):
-        response = self.client.post(reverse(set_lighting))
-        self.assertEqual(response.status_code, 200)
