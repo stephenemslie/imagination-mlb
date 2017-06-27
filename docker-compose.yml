@@ -3,10 +3,6 @@ version: '3.2'
 services:
     postgres:
         image: postgres:9.6.2
-        environment:
-            POSTGRES_PASSWORD_FILE: '/run/secrets/POSTGRES_PASSWORD'
-        secrets:
-            - POSTGRES_PASSWORD
 
     django:
         image: mlb_django:latest

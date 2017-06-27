@@ -1,5 +1,6 @@
 version: '3.2'
 services:
+
     nginx:
         image: jwilder/nginx-proxy
         ports:
@@ -7,10 +8,16 @@ services:
         restart: always
         volumes:
             - "/var/run/docker.sock:/tmp/docker.sock:ro"
+
     postgres:
         restart: always
         volumes:
             - "pgdata:/var/lib/postgresql/data"
+        environment:
+            POSTGRES_PASSWORD_FILE: '/run/secrets/POSTGRES_PASSWORD'
+        secrets:
+            - POSTGRES_PASSWORD
+
     postgres-backup:
         build:
             context: ./postgres_backup
