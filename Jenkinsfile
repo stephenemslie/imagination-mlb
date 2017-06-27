@@ -5,6 +5,9 @@ pipeline {
     }
     stages {
         stage('Build') {
+            environment {
+                RELEASE_AUTH=credentials('RELEASE_AUTH')
+            }
             steps {
                 sh 'curl -L https://github.com/docker/compose/releases/download/1.14.0/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose && chmod +x /usr/local/bin/docker-compose'
                 sh 'docker-compose build django'
