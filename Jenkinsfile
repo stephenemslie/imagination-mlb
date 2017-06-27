@@ -7,7 +7,7 @@ pipeline {
             }
             steps {
                 sh 'curl -L https://github.com/docker/compose/releases/download/1.14.0/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose && chmod +x /usr/local/bin/docker-compose'
-                sh 'docker-compose -f docker-compose.yml -f docker-compose.prod.yml build django'
+                sh 'docker-compose -f docker-compose.yml -f docker-compose.prod.yml build --no-cache django'
             }
         }
         stage('Test') {
