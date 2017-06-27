@@ -4,6 +4,7 @@ pipeline {
         stage('Build') {
             environment {
                 RELEASE_AUTH=credentials('RELEASE_AUTH')
+                DJANGO_TAG=localhost:5000/mlb_django:latest
             }
             steps {
                 sh 'curl -L -o /usr/local/bin/jp https://github.com/jmespath/jp/releases/download/0.1.2/jp-linux-amd64 && chmod +x /usr/local/bin/jp'
@@ -19,8 +20,9 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-                sh 'docker-compose -f docker-compose.yml -f docker-compose.prod.yml push django'
-                sh 'docker service update --image localhost:5000/mlb_django:latest django-master'
+                sh 'docker tag mlb_django:latest $DJANGO_TAG'
+                sh 'docker push $DJANGO_TAG'
+                sh 'docker service update --image $DJANGO_TAG django-master'
             }
         }
     }
