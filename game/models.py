@@ -46,7 +46,9 @@ class User(AbstractUser):
                               aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
                               aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
                               region_name=settings.AWS_REGION_NAME)
-        message = "test"
+        message = ("Ready to smash it? Because it’s your turn to bat now! "
+                   "Please head over to the batting cage where we’re waiting for "
+                   "you. Do your team proud!")
         client.publish(PhoneNumber=self.mobile_number.as_e164,
                        Message=message,
                        MessageAttributes={
