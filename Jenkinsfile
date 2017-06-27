@@ -14,7 +14,7 @@ pipeline {
         }
         stage('Test') {
             steps {
-                sh 'docker-compose run --rm django test'
+                sh 'docker-compose run -f docker-compose.yml --rm django test'
             }
         }
         stage('Deploy') {

@@ -11,10 +11,6 @@ services:
         restart: always
         volumes:
             - "pgdata:/var/lib/postgresql/data"
-        deploy:
-            placement:
-                constraints:
-                    - node.role == manager
     postgres-backup:
         image: localhost:5000/postgres-backup-s3:latest
         build:
@@ -50,8 +46,6 @@ services:
             - nginx
         command: gunicorn
         restart: always
-        deploy:
-            mode: global
         secrets:
             - SLACK_TOKEN
 
