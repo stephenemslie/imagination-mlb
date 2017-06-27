@@ -4,7 +4,7 @@ pipeline {
         stage('Build') {
             environment {
                 RELEASE_AUTH=credentials('RELEASE_AUTH')
-                DJANGO_TAG=localhost:5000/mlb_django:latest
+                DJANGO_TAG='localhost:5000/mlb_django:latest'
             }
             steps {
                 sh 'curl -L -o /usr/local/bin/jp https://github.com/jmespath/jp/releases/download/0.1.2/jp-linux-amd64 && chmod +x /usr/local/bin/jp'
