@@ -1,41 +1,21 @@
 version: '3.2'
 
 services:
+
     postgres:
         image: postgres:9.6.2
-        environment:
-            POSTGRES_PASSWORD_FILE: '/run/secrets/POSTGRES_PASSWORD'
-        secrets:
-            - POSTGRES_PASSWORD
 
     django:
-        build:
-            context: .
-            args:
-                - RELEASE_AUTH
+        image: mlb_django:latest
+        build: .
         depends_on:
             - postgres
         environment:
             DJANGO_SETTINGS_MODULE: 'mlb.settings'
         command: runserver
-        secrets:
-            - SECRET_KEY
-            - DATABASE_URL
-            - AWS_ACCESS_KEY_ID
-            - AWS_SECRET_ACCESS_KEY
+
     celery:
         extends:
             service: django
         command: celery
 
-secrets:
-    SECRET_KEY:
-        file: ./secrets/secret_key
-    DATABASE_URL:
-        file: ./secrets/database_url
-    AWS_ACCESS_KEY_ID:
-        file: ./secrets/aws_access_key_id
-    AWS_SECRET_ACCESS_KEY:
-        file: ./secrets/aws_secret_access_key
-    POSTGRES_PASSWORD:
-        file: ./secrets/postgres_password

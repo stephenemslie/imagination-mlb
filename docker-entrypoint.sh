@@ -2,6 +2,7 @@
 set -e
 
 if [ "$1" = 'test' ]; then
+    bin/wait-for-it.sh postgres:5432
     exec python3 manage.py test
 fi
 
