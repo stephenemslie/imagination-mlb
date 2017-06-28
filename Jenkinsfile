@@ -20,7 +20,11 @@ pipeline {
             }
         }
         stage('Deploy') {
-            when { BRANCH_NAME == 'master' }
+            when {
+                expression {
+                    return BRANCH_NAME == 'master'
+                }
+            }
             steps {
                 sh 'docker tag mlb_django:latest $DJANGO_TAG'
                 sh 'docker push $DJANGO_TAG'
