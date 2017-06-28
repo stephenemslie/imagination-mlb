@@ -112,6 +112,7 @@ class Game(models.Model):
         self.score = score
         self.distance = distance
         self.homeruns = homeruns
+        self.user.send_souvenir_sms()
 
     @transition(field=state, source='*', target='cancelled')
     def cancel(self):
