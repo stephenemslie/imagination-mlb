@@ -34,7 +34,7 @@ def send_sms(self, recipient, message):
 def render_souvenir(self, user_id):
     from .models import User
     user = User.objects.get(pk=user_id)
-    path = reverse('users-souvenir', args=(user_id,))
+    path = reverse('user-souvenir', args=(user_id,))
     chrome = Chromote(host=settings.CHROME_REMOTE_HOST)
     tab = chrome.tabs[0]
     tab.set_url("http://{}{}".format(settings.DJANGO_HOST, path))
