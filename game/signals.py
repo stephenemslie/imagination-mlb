@@ -6,7 +6,7 @@ from .models import Game
 
 @receiver(post_transition, sender=Game)
 def recall_users(sender, instance, name, source, target, **kwargs):
-    if target == 'completed':
+    if target in ('completed', 'cancelled'):
         for game in Game.objects.next_recalls():
             game.recall()
             game.save()
