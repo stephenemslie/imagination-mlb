@@ -4,7 +4,7 @@ from django.urls import reverse
 
 import time
 import boto3
-from chromote import Chromote
+import chromote
 from celery import shared_task
 from botocore.exceptions import EndpointConnectionError
 
@@ -34,6 +34,7 @@ def send_sms(self, recipient, message):
 
 @shared_task
 def render_souvenir(self, user_id):
+    from .models import User
     user = User.objects.get(pk=user_id)
     path = reverse('users-souvenir', args=(user_id,))
     chrome = Chromote(host=settings.CHROME_REMOTE_HOST)
