@@ -36,6 +36,17 @@ services:
             - S3_SECRET_ACCESS_KEY
             - S3_ACCESS_KEY_ID
 
+    jenkins:
+        image: shimmi/jenkins:latest
+        restart: always
+        ports:
+            - "8082:8080"
+        volumes:
+            - jenkins-home:/var/jenkins_home
+            - /var/run/docker.sock:/var/run/docker.sock
+        environment:
+            VIRTUAL_HOST: mlb-jenkins.imagination.net
+
     django:
         environment:
             DEBUG: 'False'
@@ -71,6 +82,7 @@ services:
 
 volumes:
     pgdata:
+    jenkins-home:
 
 secrets:
     SECRET_KEY:
