@@ -79,6 +79,11 @@ class UserSerializer(BaseUserSerializer):
     games = BaseGameSerializer(many=True, read_only=True)
     active_game = BaseGameSerializer(read_only=True)
 
+    def create(self, validated_data):
+        user = super().create(validated_data)
+        user.send_welcome_sms()
+        return user
+
 
 class GameScoreSerializer(serializers.Serializer):
 
