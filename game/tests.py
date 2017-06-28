@@ -261,26 +261,38 @@ class TestRecallUsersSignal(APITestCase):
         for i in range(10):
             GameFactory(state='queued')
 
-    def _recall_users(self):
+    def _recall_users(self, state):
         with mock.patch.object(User, 'send_recall_sms') as _send_recall_sms:
             with self.settings(RECALL_DISABLE=False):
                 recall_users(sender=mock.Mock(),
                              instance=mock.Mock(),
                              name=mock.Mock(),
                              source=mock.Mock(),
-                             target='completed')
+                             target=state)
         return _send_recall_sms
 
-    def test_send_recall_sms(self):
+    def test_send_recall_sms_completed(self):
         with self.settings(RECALL_WINDOW_SIZE=5):
-            _send_recall_sms = self._recall_users()
+            _send_recall_sms = self._recall_users('completed')
             self.assertEqual(_send_recall_sms.call_count, 5)
 
-    def test_recalled_state(self):
+    def test_send_recall_sms_cancelled(self):
+        with self.settings(RECALL_WINDOW_SIZE=5):
+            _send_recall_sms = self._recall_users('cancelled')
+            self.assertEqual(_send_recall_sms.call_count, 5)
+
+    def test_recalled_state_completed(self):
         query = Game.objects.filter(state='recalled')
         self.assertEqual(query.count(), 0)
         with self.settings(RECALL_WINDOW_SIZE=5):
-            self._recall_users()
+            self._recall_users('completed')
+        self.assertEqual(query.count(), 5)
+
+    def test_recalled_state_cancelled(self):
+        query = Game.objects.filter(state='recalled')
+        self.assertEqual(query.count(), 0)
+        with self.settings(RECALL_WINDOW_SIZE=5):
+            self._recall_users('cancelled')
         self.assertEqual(query.count(), 5)
 
 
