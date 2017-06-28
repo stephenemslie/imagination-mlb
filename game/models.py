@@ -10,7 +10,7 @@ from django.utils import timezone
 from django_fsm import FSMField, transition
 from phonenumber_field.modelfields import PhoneNumberField
 
-from .tasks import send_sms
+from .tasks import send_sms, render_souvenir
 
 
 class Team(models.Model):
@@ -124,6 +124,7 @@ class Game(models.Model):
         self.distance = distance
         self.homeruns = homeruns
         self.user.send_souvenir_sms()
+        render_souvenir.delay(self.user.pk)
 
     @transition(field=state, source='*', target='cancelled')
     def cancel(self):
