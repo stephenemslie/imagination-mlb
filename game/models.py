@@ -41,7 +41,6 @@ class User(AbstractUser):
                                   choices=(('L', 'Left'), ('R', 'Right')),
                                   null=True, blank=True)
     signed_waiver = models.BooleanField(default=False)
-    souvenir_image = models.ImageField(upload_to='souvenirs/', null=True, blank=True)
 
     def send_welcome_sms(self):
         message = ("Welcome to #mlbbattlegrounds. We’ll text you when it’s your "
@@ -60,16 +59,6 @@ class User(AbstractUser):
                    "Please head over to the batting cage where we’re waiting for "
                    "you. Do your team proud!")
         send_sms.delay(self.mobile_number.as_e164, message)
-
-    def get_score(self, date=None):
-        query = Game.objects.filter(user=self, state='completed')
-        if date:
-            query = query.annotate(day=Trunc('date_created', 'day', output_field=models.DateField()))\
-                         .filter(day=date)
-        query = query.aggregate(score=models.Sum('score'),
-                                distance=models.Sum('distance'),
-                                homeruns=models.Sum('homeruns'))
-        return dict(query)
 
 
 class GameQuerySet(models.QuerySet):
@@ -96,6 +85,7 @@ class Game(models.Model):
     homeruns = models.IntegerField(default=0)
     score = models.IntegerField(default=0)
     state = FSMField(default='new')
+    souvenir_image = models.ImageField(upload_to='souvenirs/', null=True, blank=True)
 
     objects = GameQuerySet.as_manager()
 
@@ -124,7 +114,7 @@ class Game(models.Model):
         self.distance = distance
         self.homeruns = homeruns
         self.user.send_souvenir_sms()
-        render_souvenir.delay(self.user.pk)
+        render_souvenir.delay(self.pk)
 
     @transition(field=state, source='*', target='cancelled')
     def cancel(self):

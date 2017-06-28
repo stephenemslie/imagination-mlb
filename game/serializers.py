@@ -95,8 +95,3 @@ class GameScoreSerializer(serializers.Serializer):
 class LightingSerializer(serializers.Serializer):
 
     event = serializers.ChoiceField(choices=('LA', 'Boston', 'attractor', 'in-game'))
-
-
-class SouvenirSerializer(serializers.Serializer):
-
-    date = serializers.DateField()

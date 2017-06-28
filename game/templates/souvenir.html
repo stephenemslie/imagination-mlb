@@ -169,11 +169,11 @@ function grayScale(context, canvas) {
         <div class="scorebar">
             <div class="score">
                 <div class="title">SCORE:</div>
-                <div class="points">{{ user_score.score }}</div>
+                <div class="points">{{ game.score }}</div>
                 <div class="title">HOME RUNS:</div>
-                <div class="points">{{ user_score.homeruns | stringformat:"02d" }}</div>
+                <div class="points">{{ game.homeruns | stringformat:"02d" }}</div>
                 <div class="title">DISTANCE:</div>
-                <div class="points">{{ user_score.distance }}FT</div>
+                <div class="points">{{ game.distance }}FT</div>
             </div>
         </div>
 

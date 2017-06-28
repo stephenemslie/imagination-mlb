@@ -13,7 +13,7 @@ from pysimpledmx.pysimpledmx import DMXConnection
 
 from .models import User, Game, Team
 from .serializers import (UserSerializer, GameSerializer, GameScoreSerializer,
-                          TeamSerializer, LightingSerializer, SouvenirSerializer)
+                          TeamSerializer, LightingSerializer)
 
 
 class DateFilterMixin:
@@ -52,17 +52,6 @@ class UserViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return self.queryset.filter(is_staff=False, is_superuser=False, is_active=True)
-
-    @detail_route(methods=['GET'])
-    def souvenir(self, request, pk=None):
-        serializer = SouvenirSerializer(data=request.GET)
-        if serializer.is_valid():
-            request.accepted_renderer = TemplateHTMLRenderer()
-            user = self.get_object()
-            context = {'user': user, 'user_score': user.get_score()}
-            return Response(context, template_name='souvenir.html')
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class GameFilter(FilterSet, DateFilterMixin):
@@ -148,6 +137,13 @@ class GameViewSet(viewsets.ModelViewSet):
         game.save()
         serializer = self.get_serializer(game)
         return Response(serializer.data)
+
+    @detail_route(methods=['GET'])
+    def souvenir(self, request, pk=None):
+        request.accepted_renderer = TemplateHTMLRenderer()
+        game = self.get_object()
+        context = {'user': game.user, 'game': game}
+        return Response(context, template_name='souvenir.html')
 
 
 @api_view(['POST'])

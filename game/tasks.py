@@ -31,14 +31,13 @@ def send_sms(self, recipient, message):
 
 
 @shared_task(bind=True)
-def render_souvenir(self, user_id):
-    from .models import User
-    user = User.objects.get(pk=user_id)
-    path = reverse('user-souvenir', args=(user_id,))
-    date = user.active_game.date_created.strftime('%Y-%m-%d')
+def render_souvenir(self, game_id):
+    from .models import Game
+    game = Game.objects.get(pk=game_id)
+    path = reverse('game-souvenir', args=(game_id,))
     chrome = chromote.Chromote(host=settings.CHROME_REMOTE_HOST)
     tab = chrome.tabs[0]
-    tab.set_url("http://{}{}?date={}".format(settings.DJANGO_HOST, path, date))
+    tab.set_url("http://{}{}".format(settings.DJANGO_HOST, path))
     time.sleep(2)
     screenshot = tab.screenshot()
-    user.souvenir_image.save('souvenir.png', ContentFile(screenshot))
+    game.souvenir_image.save('souvenir.png', ContentFile(screenshot))

@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AddField(
-            model_name='user',
+            model_name='game',
             name='souvenir_image',
             field=models.ImageField(blank=True, null=True, upload_to='souvenirs/'),
         )
