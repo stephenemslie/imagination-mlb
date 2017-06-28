@@ -41,6 +41,7 @@ class User(AbstractUser):
                                   choices=(('L', 'Left'), ('R', 'Right')),
                                   null=True, blank=True)
     signed_waiver = models.BooleanField(default=False)
+    souvenir_image = models.ImageField(upload_to='souvenirs/', null=True, blank=True)
 
     def send_welcome_sms(self):
         message = ("Welcome to #mlbbattlegrounds. We’ll text you when it’s your "
