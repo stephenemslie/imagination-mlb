@@ -20,7 +20,9 @@ pipeline {
             }
         }
         stage('Deploy') {
-            when { branch 'master' }
+            when {
+                branch 'master'
+            }
             steps {
                 sh 'docker tag mlb_django:latest $DJANGO_TAG'
                 sh 'docker push $DJANGO_TAG'
