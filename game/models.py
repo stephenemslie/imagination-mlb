@@ -42,6 +42,18 @@ class User(AbstractUser):
                                   null=True, blank=True)
     signed_waiver = models.BooleanField(default=False)
 
+    def send_welcome_sms(self):
+        message = ("Welcome to #mlbbattlegrounds. We’ll text you when it’s your "
+                   "turn to bat. Enjoy Boston or L.A. food while you wait. Prepare "
+                   "for beastmode!")
+        send_sms.delay(self.mobile_number.as_e164, message)
+
+    def send_souvenir_sms(self):
+        message = ("Thanks for playing! Download your pic here: <link> "
+                   "If you like this, you’ll love our event on July 4th: "
+                   "<link>")
+        send_sms.delay(self.mobile_number.as_e164, message)
+
     def send_recall_sms(self):
         message = ("Ready to smash it? Because it’s your turn to bat now! "
                    "Please head over to the batting cage where we’re waiting for "
