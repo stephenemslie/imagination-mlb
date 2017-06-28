@@ -19,6 +19,7 @@ services:
             - POSTGRES_PASSWORD
 
     postgres-backup:
+        restart: always
         build:
             context: ./postgres_backup
         depends_on:
