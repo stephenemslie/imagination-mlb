@@ -153,7 +153,7 @@ LOGGING = {
 }
 
 CHROME_REMOTE_HOST = env('CHROME_REMOTE_HOST', default='chrome')
-DJANGO_HOST = env('DJANGO_HOST', default='django')
+DJANGO_HOST = env('DJANGO_HOST', default='django:8000')
 
 CELERY_BROKER_URL=env('CELERY_BROKER_URL', default='redis://redis:6379/0')
 CELERY_TASK_ALWAYS_EAGER=env.bool('CELERY_TASK_ALWAYS_EAGER', default=False)
