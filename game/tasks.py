@@ -1,8 +1,14 @@
 from django.conf import settings
+from django.core.files.base import ContentFile
+from django.urls import reverse
 
+import time
 import boto3
+from chromote import Chromote
 from celery import shared_task
 from botocore.exceptions import EndpointConnectionError
+
+from .models import User
 
 
 @shared_task(bind=True)
@@ -24,3 +30,15 @@ def send_sms(self, recipient, message):
                        })
     except EndpointConnectionError as exc:
         self.retry(exc=exc, countdown=2 ** self.request.retries)
+
+
+@shared_task
+def render_souvenir(self, user_id):
+    user = User.objects.get(pk=user_id)
+    path = reverse('users-souvenir', args=(user_id,))
+    chrome = Chromote(host=settings.CHROME_REMOTE_HOST)
+    tab = chrome.tabs[0]
+    tab.set_url("http://{}{}".format(settings.DJANGO_HOST, path))
+    time.sleep(2)
+    screenshot = tab.screenshot()
+    user.souvenir_image.save('souvenir.png', ContentFile(screenshot))
