@@ -43,6 +43,7 @@ services:
             - "8082:8080"
         volumes:
             - jenkins-home:/var/jenkins_home
+            - /var/secrets:/var/secrets
             - /var/run/docker.sock:/var/run/docker.sock
         environment:
             VIRTUAL_HOST: mlb-jenkins.imagination.net
