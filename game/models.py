@@ -60,6 +60,16 @@ class User(AbstractUser):
                    "you. Do your team proud!")
         send_sms.delay(self.mobile_number.as_e164, message)
 
+    def get_score(self, date=None):
+        query = Game.objects.filter(user=self, state='completed')
+        if date:
+            query = query.annotate(day=Trunc('date_created', 'day', output_field=models.DateField()))\
+                         .filter(day=date)
+        query = query.aggregate(score=models.Sum('score'),
+                                distance=models.Sum('distance'),
+                                homeruns=models.Sum('homeruns'))
+        return dict(query)
+
 
 class GameQuerySet(models.QuerySet):
 
