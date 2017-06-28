@@ -17,6 +17,7 @@ pipeline {
             steps {
                 sh 'docker-compose stop && docker-compose rm -f'
                 sh 'docker-compose -f docker-compose.yml run -e RECALL_DISABLE=True -e DATABASE_URL=psql://postgres:postgres@postgres:5432/postgres -e SECRET_KEY=testrun --rm django test'
+                sh 'docker-compose stop && docker-compose rm -f'
             }
         }
         stage('Deploy') {
