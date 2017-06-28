@@ -1,0 +1,184 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>MLB VR Game Souvenir</title>
+<style>
+
+    @font-face {
+        font-family: "gothic";
+        src: url("{% static "/souvenir/fonts/alt-gothic-bold.otf" %}") format("opentype");
+        font-weight: normal;
+        font-style: normal;
+    }
+
+    body {
+        font-family: 'gothic';
+        color: #fff;
+        text-transform: uppercase;
+    }
+
+    div, img, body {
+        padding: 0;
+        margin: 0;
+    }
+
+    #container {
+        position: relative;
+        overflow: hidden;
+        width: 720px;
+        height: 1008px;
+    }
+
+    .frame {
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
+    .name {
+        position: absolute;
+        left: 38px;
+        bottom: 130px;
+        font-size: 60px;
+        line-height: 70px;
+    }
+
+    .scorebar {
+        position: absolute;
+        left: 30px;
+        top: 920px;
+    }
+
+    .scorebar .score {
+        left: 10px;
+    }
+
+    .scorebar .score > div {
+        display: inline-block;
+        font-size: 40px;
+        vertical-align: top;
+        line-height: 40px;
+        margin: 0 10px;
+    }
+
+    .scorebar .score .title {
+        font-size: 15px;
+        line-height: 22px;
+    }
+
+    .logo {
+        width: 70px;
+        height: 125px;
+        position: absolute;
+        left: 609px;
+        bottom: 56px;
+        background-size: contain;
+    }
+
+    .logo.la {
+        background: url({% static "souvenir/images/la-logo-white.svg" %}) no-repeat bottom left;
+    }
+    .logo.boston {
+        background: url({% static "souvenir/images/boston-logo-white.svg" %}) no-repeat bottom left;
+    }
+
+</style>
+
+<script>
+
+function loadImages(sources, callback) {
+    var images = {};
+    var loadedImages = 0;
+    var numImages = 0;
+    // get num of sources
+    for(var src in sources) {
+        numImages++;
+    }
+    for(var src in sources) {
+        images[src] = new Image();
+        images[src].onload = function() {
+            if(++loadedImages >= numImages) {
+                callback(images);
+            }
+        };
+        images[src].src = sources[src];
+    }
+}
+
+window.onload = function () {
+
+    var teams = {
+        la: '#86d1f2',
+        boston: '#c71033'
+    }
+    var teamcol = teams["{{ user.team.name | lower }}"];
+
+    var canvas = document.createElement('canvas');
+    canvas.width = 720;
+    canvas.height = 1008;
+    canvas.id = 'card';
+    var container = document.getElementById('container');
+    container.appendChild(canvas);
+    var context = canvas.getContext('2d');
+
+    var sources = {
+        user: "{{ user.image.url }}",
+        frame: "{% static 'souvenir/images/frame.png' %}"
+    };
+
+    loadImages(sources, function (images) {
+        context.drawImage(images.user, 0, 0, 720, 1008);
+        grayScale(context, canvas);
+        context.globalCompositeOperation = 'multiply';
+        context.fillStyle = teamcol;
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        context.globalCompositeOperation = 'normal';
+        context.drawImage(images.frame, 0, 0);
+    });
+
+    var el = document.getElementsByClassName('logo')[0];
+    el.className = '{{ user.team.name | lower }} logo';
+};
+
+function grayScale(context, canvas) {
+    var imgData = context.getImageData(0, 0, canvas.width, canvas.height);
+    var pixels  = imgData.data;
+
+    for (var i = 0, n = pixels.length; i < n; i += 4) {
+        var grayscale = pixels[i] * .3 + pixels[i+1] * .59 + pixels[i+2] * .11 + 50;
+        pixels[i  ] = grayscale;        // red
+        pixels[i+1] = grayscale;        // green
+        pixels[i+2] = grayscale;        // blue
+        //pixels[i+3]              is alpha
+    }
+    //redraw the image in black & white
+    context.putImageData(imgData, 0, 0);
+}
+
+
+</script>
+</head>
+
+<body>
+    <div id="container">
+
+        <div class="name">{{ user.first_name }} <br>{{ user.last_name }}</div>
+        <div class="scorebar">
+            <div class="score">
+                <div class="title">SCORE:</div>
+                <div class="points">{{ user_score.score }}</div>
+                <div class="title">HOME RUNS:</div>
+                <div class="points">{{ user_score.homeruns | stringformat:"02d" }}</div>
+                <div class="title">DISTANCE:</div>
+                <div class="points">{{ user_score.distance }}FT</div>
+            </div>
+        </div>
+
+        <div class="logo"></div>
+
+
+    </div>
+</body>
+</html>

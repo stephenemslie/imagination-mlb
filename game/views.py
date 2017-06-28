@@ -4,6 +4,7 @@ from django.conf import settings
 
 from rest_framework import viewsets, status, filters
 from rest_framework.decorators import api_view
+from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.response import Response
 from rest_framework.decorators import detail_route
 from django_filters.rest_framework import DjangoFilterBackend, FilterSet, CharFilter, DateFilter
@@ -12,7 +13,7 @@ from pysimpledmx.pysimpledmx import DMXConnection
 
 from .models import User, Game, Team
 from .serializers import (UserSerializer, GameSerializer, GameScoreSerializer,
-                          TeamSerializer, LightingSerializer)
+                          TeamSerializer, LightingSerializer, SouvenirSerializer)
 
 
 class DateFilterMixin:
@@ -51,6 +52,18 @@ class UserViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return self.queryset.filter(is_staff=False, is_superuser=False, is_active=True)
+
+    @detail_route(methods=['GET'])
+    def souvenir(self, request, pk=None):
+        serializer = SouvenirSerializer(data=request.GET)
+        if serializer.is_valid():
+            if request.accepted_media_type == TemplateHTMLRenderer.media_type:
+                request.accepted_renderer = TemplateHTMLRenderer()
+            user = self.get_object()
+            context = {'user': user, 'user_score': user.get_score()}
+            return Response(context, template_name='souvenir.html')
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class GameFilter(FilterSet, DateFilterMixin):
