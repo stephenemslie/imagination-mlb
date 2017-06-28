@@ -8,6 +8,16 @@ services:
     redis:
         image: redis:3.0-alpine
 
+    chrome:
+        image: justinribeiro/chrome-headless
+        command: [ "--headless",
+                   "--disable-gpu",
+                   "--remote-debugging-address=0.0.0.0",
+                   "--remote-debugging-port=9222",
+                   "--window-size=720,1008"]
+        cap_add:
+            - SYS_ADMIN
+
     django:
         image: mlb_django:latest
         build: .
@@ -24,5 +34,6 @@ services:
         depends_on:
             - postgres
             - redis
+            - chrome
         command: celery
 
