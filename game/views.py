@@ -57,8 +57,7 @@ class UserViewSet(viewsets.ModelViewSet):
     def souvenir(self, request, pk=None):
         serializer = SouvenirSerializer(data=request.GET)
         if serializer.is_valid():
-            if request.accepted_media_type == TemplateHTMLRenderer.media_type:
-                request.accepted_renderer = TemplateHTMLRenderer()
+            request.accepted_renderer = TemplateHTMLRenderer()
             user = self.get_object()
             context = {'user': user, 'user_score': user.get_score()}
             return Response(context, template_name='souvenir.html')
