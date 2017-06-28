@@ -408,3 +408,22 @@ class TestMethodOverrideMiddleware(AuthenticatedTestMixin, APITestCase):
         f.seek(0)
         self.assertIsNotNone(user.image)
         self.assertEqual(user.image.read(), f.read())
+
+
+class TestSouvenirTask(APITestCase):
+
+    def test_called_on_complete(self):
+        user = PlayerUserFactory()
+        user.active_game = GameFactory(user=user, state='playing')
+        with mock.patch('game.tasks.render_souvenir.delay') as _delay:
+            user.active_game.complete(10, 10, 10)
+            _delay.assert_called()
+
+    def test_screenshot_on_complete(self):
+        user = PlayerUserFactory()
+        user.active_game = GameFactory(user=user, state='playing')
+        user.save()
+        with mock.patch('chromote.Chromote') as _Chromote:
+            _Chromote().tabs = mock.MagicMock()
+            user.active_game.complete(10, 10, 10)
+            _Chromote().tabs[0].screenshot.assert_called()
