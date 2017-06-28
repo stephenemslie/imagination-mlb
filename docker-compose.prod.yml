@@ -58,6 +58,17 @@ services:
             - AWS_SECRET_ACCESS_KEY
             - SLACK_TOKEN
 
+    celery:
+        environment:
+            DEBUG: 'False'
+        restart: always
+        secrets:
+            - SECRET_KEY
+            - DATABASE_URL
+            - AWS_ACCESS_KEY_ID
+            - AWS_SECRET_ACCESS_KEY
+            - SLACK_TOKEN
+
 volumes:
     pgdata:
 
