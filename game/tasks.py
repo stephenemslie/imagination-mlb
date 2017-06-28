@@ -30,7 +30,7 @@ def send_sms(self, recipient, message):
         self.retry(exc=exc, countdown=2 ** self.request.retries)
 
 
-@shared_task
+@shared_task(bind=True)
 def render_souvenir(self, user_id):
     from .models import User
     user = User.objects.get(pk=user_id)
