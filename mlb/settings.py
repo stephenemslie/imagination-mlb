@@ -152,6 +152,9 @@ LOGGING = {
     },
 }
 
+CELERY_BROKER_URL=env('CELERY_BROKER_URL', default='redis://redis:6379/0')
+CELERY_TASK_ALWAYS_EAGER=env.bool('CELERY_TASK_ALWAYS_EAGER', default=False)
+
 SLACK_TOKEN = env('SLACK_TOKEN', default=None)
 SLACK_CHANNEL = '#mlb'
 SLACK_BACKEND = 'django_slack.backends.UrllibBackend'
