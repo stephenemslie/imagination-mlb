@@ -11,3 +11,11 @@ services:
             RECALL_DISABLE: 'True'
             SECRET_KEY: 'thyzNahan'
             DATABASE_URL: 'psql://postgres:postgres@postgres:5432/postgres'
+    celery:
+        volumes:
+            - '.:/app'
+        environment:
+            DEBUG: 'True'
+            RECALL_DISABLE: 'True'
+            SECRET_KEY: 'thyzNahan'
+            DATABASE_URL: 'psql://postgres:postgres@postgres:5432/postgres'
