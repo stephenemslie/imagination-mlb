@@ -5,6 +5,9 @@ services:
     postgres:
         image: postgres:9.6.3-alpine
 
+    redis:
+        image: redis:3.0-alpine
+
     django:
         image: mlb_django:latest
         build: .
