@@ -30,6 +30,7 @@ pipeline {
                 sh 'docker tag mlb_django:latest $DJANGO_TAG'
                 sh 'docker push $DJANGO_TAG'
                 sh 'docker service update --image $DJANGO_TAG django-master'
+                sh 'docker service update --image $DJANGO_TAG celery'
             }
         }
     }
