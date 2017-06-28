@@ -1,7 +1,8 @@
 from django.conf import settings
-from celery import shared_task
 
 import boto3
+from celery import shared_task
+from botocore.exceptions import EndpointConnectionError
 
 
 @shared_task(bind=True)
@@ -21,5 +22,5 @@ def send_sms(self, recipient, message):
                                'DataType': 'String',
                                'StringValue': 'Transactional'}
                        })
-    except:
+    except EndpointConnectionError as exc:
         self.retry(exc=exc, countdown=2 ** self.request.retries)
