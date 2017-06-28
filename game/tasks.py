@@ -36,7 +36,7 @@ def render_souvenir(self, user_id):
     user = User.objects.get(pk=user_id)
     path = reverse('user-souvenir', args=(user_id,))
     date = user.active_game.date_created.strftime('%Y-%m-%d')
-    chrome = Chromote(host=settings.CHROME_REMOTE_HOST)
+    chrome = chromote.Chromote(host=settings.CHROME_REMOTE_HOST)
     tab = chrome.tabs[0]
     tab.set_url("http://{}{}?date={}".format(settings.DJANGO_HOST, path, date))
     time.sleep(2)
