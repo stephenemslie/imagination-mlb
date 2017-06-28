@@ -233,7 +233,8 @@ class TestCompleteGame(AuthenticatedTestMixin, APITestCase):
         self.player = PlayerUserFactory()
         self.player.active_game = GameFactory(user=self.player, state='playing')
         game_id = self.player.active_game.pk
-        self.response = self.client.post(reverse('game-complete', args=(game_id,)), self.score_data)
+        with mock.patch('game.tasks.render_souvenir.delay'):
+            self.response = self.client.post(reverse('game-complete', args=(game_id,)), self.score_data)
         self.game = Game.objects.get(pk=game_id)
         self._send = send
 
