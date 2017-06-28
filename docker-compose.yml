@@ -18,7 +18,10 @@ services:
         command: runserver
 
     celery:
-        extends:
-            service: django
+        image: mlb_django:latest
+        build: .
+        depends_on:
+            - postgres
+            - redis
         command: celery
 
