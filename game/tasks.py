@@ -8,8 +8,6 @@ import chromote
 from celery import shared_task
 from botocore.exceptions import EndpointConnectionError
 
-from .models import User
-
 
 @shared_task(bind=True)
 def send_sms(self, recipient, message):
