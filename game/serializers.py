@@ -1,3 +1,5 @@
+import uuid
+
 from rest_framework import serializers
 from phonenumber_field.modelfields import PhoneNumberField
 
@@ -46,6 +48,8 @@ class BaseUserSerializer(AuthenticatedFieldsMixin, serializers.ModelSerializer):
         game = Game.objects.create(user=user)
         user.active_game = game
         user.save()
+        if user.mobile_number:
+            user.send_welcome_sms()
         return user
 
 
@@ -78,11 +82,6 @@ class UserSerializer(BaseUserSerializer):
 
     games = BaseGameSerializer(many=True, read_only=True)
     active_game = BaseGameSerializer(read_only=True)
-
-    def create(self, validated_data):
-        user = super().create(validated_data)
-        user.send_welcome_sms()
-        return user
 
 
 class GameScoreSerializer(serializers.Serializer):
