@@ -56,10 +56,9 @@ def periodic_recall():
 
 @shared_task(bind=True)
 def shorten_url(self, url):
-    url = 'https://api-ssl.bitly.com/v3/shorten'
-    payload = {'access_token': settings.BITLY_TOKEN, 'longUrl': url}
     try:
-        response = requests.get(url, params=payload)
+        payload = {'access_token': settings.BITLY_TOKEN, 'longUrl': url}
+        response = requests.get('https://api-ssl.bitly.com/v3/shorten', params=payload)
     except requests.exceptions.ConnectionError as exc:
         self.retry(exc=exc, countdown=2 ** self.request.retries)
     response.raise_for_status()
