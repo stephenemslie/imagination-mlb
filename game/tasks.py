@@ -41,3 +41,11 @@ def render_souvenir(self, game_id):
     time.sleep(2)
     screenshot = tab.screenshot()
     game.souvenir_image.save('souvenir.png', ContentFile(screenshot))
+
+
+@shared_task
+def periodic_recall():
+    from .models import Game
+    for game in Game.objects.next_recalls():
+        game.recall()
+        game.save()
