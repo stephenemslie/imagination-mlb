@@ -41,7 +41,7 @@ class BaseUserSerializer(AuthenticatedFieldsMixin, serializers.ModelSerializer):
         auth_fields = ('mobile_number', 'email')
 
     def create(self, validated_data):
-        validated_data['username'] = validated_data['mobile_number']
+        validated_data['username'] = str(uuid.uuid4())
         user = super().create(validated_data)
         game = Game.objects.create(user=user)
         user.active_game = game
