@@ -11,12 +11,9 @@ services:
 
     postgres:
         restart: always
+        env_file: /var/secrets/env
         volumes:
             - "pgdata:/var/lib/postgresql/data"
-        environment:
-            POSTGRES_PASSWORD_FILE: '/run/secrets/POSTGRES_PASSWORD'
-        secrets:
-            - POSTGRES_PASSWORD
 
     postgres-backup:
         restart: always
@@ -31,10 +28,7 @@ services:
             POSTGRES_DATABASE: postgres
             POSTGRES_USER: postgres
             POSTGRES_HOST: postgres
-        secrets:
-            - POSTGRES_PASSWORD
-            - S3_SECRET_ACCESS_KEY
-            - S3_ACCESS_KEY_ID
+        env_file: /var/secrets/env
 
     jenkins:
         image: shimmi/jenkins:latest
@@ -43,7 +37,7 @@ services:
             - "8082:8080"
         volumes:
             - jenkins-home:/var/jenkins_home
-            - /var/secrets:/var/secrets
+            - /var/secrets/env:/var/secrets/env
             - /var/run/docker.sock:/var/run/docker.sock
         environment:
             VIRTUAL_HOST: mlb-jenkins.imagination.net
@@ -61,42 +55,14 @@ services:
             - nginx
         command: gunicorn
         restart: always
-        secrets:
-            - SECRET_KEY
-            - DATABASE_URL
-            - AWS_ACCESS_KEY_ID
-            - AWS_SECRET_ACCESS_KEY
-            - SLACK_TOKEN
+        env_file: /var/secrets/env
 
     celery:
         environment:
             DEBUG: 'False'
         restart: always
-        secrets:
-            - SECRET_KEY
-            - DATABASE_URL
-            - AWS_ACCESS_KEY_ID
-            - AWS_SECRET_ACCESS_KEY
-            - SLACK_TOKEN
+        env_file: /var/secrets/env
 
 volumes:
     pgdata:
     jenkins-home:
-
-secrets:
-    SECRET_KEY:
-        file: /var/secrets/secret_key
-    DATABASE_URL:
-        file: /var/secrets/database_url
-    AWS_ACCESS_KEY_ID:
-        file: /var/secrets/aws_access_key_id
-    AWS_SECRET_ACCESS_KEY:
-        file: /var/secrets/aws_secret_access_key
-    POSTGRES_PASSWORD:
-        file: /var/secrets/postgres_password
-    S3_ACCESS_KEY_ID:
-        file: /var/secrets/aws_access_key_id
-    S3_SECRET_ACCESS_KEY:
-        file: /var/secrets/aws_secret_access_key
-    SLACK_TOKEN:
-        file: /var/secrets/slack_token
