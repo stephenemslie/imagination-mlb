@@ -67,8 +67,10 @@ class GameQuerySet(models.QuerySet):
     def next_recalls(self, max_recalls=None):
         max_recalls = max_recalls or settings.RECALL_WINDOW_SIZE
         size = max(max_recalls - self.active_recalls().count(), 0)
-        query = self.order_by('date_created').filter(state='queued')[:size]
-        return query
+        query = self.order_by('date_created')\
+                    .filter(state='queued')\
+                    .exclude(user__mobile_number='')
+        return query[:size]
 
 
 class Game(models.Model):
