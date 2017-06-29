@@ -157,12 +157,6 @@ DJANGO_HOST = env('DJANGO_HOST', default='django:8000')
 
 CELERY_BROKER_URL = env('CELERY_BROKER_URL', default='redis://redis:6379/0')
 CELERY_TASK_ALWAYS_EAGER = env.bool('CELERY_TASK_ALWAYS_EAGER', default=False)
-CELERY_BEAT_SCHEDULE = {
-    'periodic-recall': {
-        'task': 'game.tasks.periodic_recall',
-        'schedule': '30.0'
-    }
-}
 
 SLACK_TOKEN = env('SLACK_TOKEN', default=None)
 SLACK_CHANNEL = '#mlb'

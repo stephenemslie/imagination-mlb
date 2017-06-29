@@ -15,3 +15,8 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 
 # Load task modules from all registered Django app configs.
 app.autodiscover_tasks()
+
+@app.on_after_configure.connect
+def setup_periodic_tasks(sender, **kwargs):
+    from game.tasks import periodic_recall
+    sender.add_periodic_task(30.0, periodic_recall.s(), name='check recall every 30s')
