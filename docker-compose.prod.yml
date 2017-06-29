@@ -37,6 +37,7 @@ services:
             - /var/run/docker.sock:/var/run/docker.sock
         environment:
             VIRTUAL_HOST: mlb-jenkins.imagination.net
+            VIRTUAL_PORT: "8080"
 
     django:
         environment:
