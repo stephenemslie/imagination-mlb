@@ -10,7 +10,7 @@ from django.utils import timezone
 from django_fsm import FSMField, transition
 from phonenumber_field.modelfields import PhoneNumberField
 
-from .tasks import send_sms, render_souvenir
+from .tasks import send_sms, render_souvenir, send_souvenir_sms
 
 
 class Team(models.Model):
@@ -46,12 +46,6 @@ class User(AbstractUser):
         message = ("Welcome to #mlbbattlegrounds. We’ll text you when it’s your "
                    "turn to bat. Enjoy Boston or L.A. food while you wait. Prepare "
                    "for beastmode!")
-        send_sms.delay(self.mobile_number.as_e164, message)
-
-    def send_souvenir_sms(self):
-        message = ("Thanks for playing! Download your pic here: <link> "
-                   "If you like this, you’ll love our event on July 4th: "
-                   "<link>")
         send_sms.delay(self.mobile_number.as_e164, message)
 
     def send_recall_sms(self):
@@ -113,8 +107,9 @@ class Game(models.Model):
         self.score = score
         self.distance = distance
         self.homeruns = homeruns
-        self.user.send_souvenir_sms()
-        render_souvenir.delay(self.pk)
+        s = render_souvenir.s(self.pk)
+        s.link(send_souvenir_sms)
+        s.delay()
 
     @transition(field=state, source='*', target='cancelled')
     def cancel(self):

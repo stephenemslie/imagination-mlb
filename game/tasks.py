@@ -5,6 +5,7 @@ from django.urls import reverse
 import time
 import boto3
 import chromote
+import requests
 from celery import shared_task
 from botocore.exceptions import EndpointConnectionError
 from mlb.celery import app
@@ -42,6 +43,7 @@ def render_souvenir(self, game_id):
     time.sleep(2)
     screenshot = tab.screenshot()
     game.souvenir_image.save('souvenir.png', ContentFile(screenshot))
+    return game.pk
 
 
 @shared_task
@@ -50,3 +52,26 @@ def periodic_recall():
     for game in Game.objects.next_recalls():
         game.recall()
         game.save()
+
+
+@shared_task(bind=True)
+def shorten_url(self, url):
+    url = 'https://api-ssl.bitly.com/v3/shorten'
+    payload = {'access_token': settings.BITLY_TOKEN, 'longUrl': url}
+    try:
+        response = requests.get(url, params=payload)
+    except requests.exceptions.ConnectionError as exc:
+        self.retry(exc=exc, countdown=2 ** self.request.retries)
+    response.raise_for_status()
+    return response.json()
+
+
+@shared_task()
+def send_souvenir_sms(game_id):
+    from .models import Game
+    game = Game.objects.get(pk=game_id)
+    url = shorten_url(game.souvenir_image)['data']['url']
+    message = ("Thanks for playing! Download your pic here: {} "
+               "If you like this, you’ll love our event on July 4th: "
+               "<link>").format(url)
+    send_sms.delay(game.mobile_number.as_e164, message)
