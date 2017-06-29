@@ -54,7 +54,7 @@ class BaseGameSerializer(serializers.ModelSerializer):
     class Meta:
         model = Game
         fields = ('url', 'id', 'user', 'user_id', 'date_created', 'date_updated',
-                  'distance', 'homeruns', 'score', 'state')
+                  'distance', 'homeruns', 'score', 'state', 'souvenir_image')
         read_only_fields = ('url', 'id', 'date_created', 'date_updated', 'state')
 
 
