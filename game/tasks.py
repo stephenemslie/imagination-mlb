@@ -1,8 +1,9 @@
+import time
+
 from django.conf import settings
 from django.core.files.base import ContentFile
 from django.urls import reverse
 
-import time
 import boto3
 import chromote
 import requests
