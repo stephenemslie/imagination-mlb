@@ -35,13 +35,13 @@ def send_sms(self, recipient, message):
 @shared_task(bind=True)
 def render_souvenir(self, game_id):
     from .models import Game
-    game = Game.objects.get(pk=game_id)
     path = reverse('game-souvenir', args=(game_id,))
     chrome = chromote.Chromote(host=settings.CHROME_REMOTE_HOST)
     tab = chrome.tabs[0]
     tab.set_url("http://{}{}".format(settings.DJANGO_HOST, path))
     time.sleep(2)
     screenshot = tab.screenshot()
+    game = Game.objects.get(pk=game_id)
     game.souvenir_image.save('souvenir.png', ContentFile(screenshot))
     return game.pk
 
