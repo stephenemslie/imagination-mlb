@@ -110,9 +110,10 @@ class Game(models.Model):
         self.score = score
         self.distance = distance
         self.homeruns = homeruns
-        s = render_souvenir.s(self.pk)
-        s.link(send_souvenir_sms.s())
-        s.delay()
+        if self.user.mobile_number:
+            s = render_souvenir.s(self.pk)
+            s.link(send_souvenir_sms.s())
+            s.delay()
 
     @transition(field=state, source='*', target='cancelled')
     def cancel(self):
