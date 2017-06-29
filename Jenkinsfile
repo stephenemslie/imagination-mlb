@@ -26,11 +26,12 @@ pipeline {
                     return BRANCH_NAME == 'master'
                 }
             }
+            environment {
+                COMPOSE_FILE='docker-compose.yml:docker-compose.prod.yml'
+            }
             steps {
-                sh 'docker tag mlb_django:latest $DJANGO_TAG'
-                sh 'docker push $DJANGO_TAG'
-                sh 'docker service update --image $DJANGO_TAG django-master'
-                sh 'docker service update --image $DJANGO_TAG celery'
+                sh 'docker-compose build'
+                sh 'docker-compose up -d'
             }
         }
     }
