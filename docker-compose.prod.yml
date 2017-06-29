@@ -31,6 +31,7 @@ services:
     jenkins:
         image: shimmi/jenkins:latest
         restart: always
+        user: root
         volumes:
             - jenkins-home:/var/jenkins_home
             - /var/secrets/env:/var/secrets/env
