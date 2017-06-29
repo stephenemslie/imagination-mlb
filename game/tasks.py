@@ -42,7 +42,10 @@ def render_souvenir(self, game_id):
     time.sleep(2)
     screenshot = tab.screenshot()
     game = Game.objects.get(pk=game_id)
-    game.souvenir_image.save('souvenir.png', ContentFile(screenshot))
+    try:
+        game.souvenir_image.save('souvenir.png', ContentFile(screenshot))
+    except EndpointConnectionError as exc:
+        self.retry(exc=exc, countdown=2 ** self.request.retries)
     return game.pk
 
 
