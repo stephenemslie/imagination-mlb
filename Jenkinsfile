@@ -3,6 +3,7 @@ pipeline {
     environment {
         RELEASE_AUTH=credentials('RELEASE_AUTH')
         DJANGO_TAG='localhost:5000/mlb_django:latest'
+        COMPOSE_FILE='docker-compose.yml:docker-compose.prod.yml'
     }
     stages {
         stage('Build') {
@@ -25,9 +26,6 @@ pipeline {
                 expression {
                     return BRANCH_NAME == 'master'
                 }
-            }
-            environment {
-                COMPOSE_FILE='docker-compose.yml:docker-compose.prod.yml'
             }
             steps {
                 sh 'docker-compose build'
