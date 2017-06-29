@@ -74,4 +74,4 @@ def send_souvenir_sms(game_id):
     message = ("Thanks for playing! Download your pic here: {} "
                "If you like this, you’ll love our event on July 4th: "
                "<link>").format(url)
-    send_sms.delay(game.mobile_number.as_e164, message)
+    send_sms.delay(game.user.mobile_number.as_e164, message)
