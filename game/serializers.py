@@ -31,7 +31,7 @@ class BaseUserSerializer(AuthenticatedFieldsMixin, serializers.ModelSerializer):
 
     team = serializers.SlugRelatedField(required=False, allow_null=True, slug_field='name', queryset=Team.objects.all())
     team_url = serializers.HyperlinkedRelatedField(read_only=True, source='team', view_name='team-detail')
-    mobile_number = serializers.CharField(validators=PhoneNumberField().validators)
+    mobile_number = serializers.CharField(validators=PhoneNumberField().validators, allow_blank=True, required=False)
 
     class Meta:
         model = User

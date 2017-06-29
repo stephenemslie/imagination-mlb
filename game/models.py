@@ -32,7 +32,7 @@ class Team(models.Model):
 
 
 class User(AbstractUser):
-    mobile_number = PhoneNumberField(blank=True)
+    mobile_number = PhoneNumberField(blank=True, default='')
     image = models.ImageField(null=True, blank=True)
     is_finalist = models.BooleanField(default=False)
     team = models.ForeignKey(Team, null=True, blank=True, related_name='members')
