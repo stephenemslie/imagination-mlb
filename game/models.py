@@ -108,7 +108,7 @@ class Game(models.Model):
         self.distance = distance
         self.homeruns = homeruns
         s = render_souvenir.s(self.pk)
-        s.link(send_souvenir_sms)
+        s.link(send_souvenir_sms.s())
         s.delay()
 
     @transition(field=state, source='*', target='cancelled')
