@@ -72,7 +72,7 @@ def shorten_url(self, url):
 def send_souvenir_sms(game_id):
     from .models import Game
     game = Game.objects.get(pk=game_id)
-    url = shorten_url.s(game.souvenir_image.url).get()['data']['url']
+    url = shorten_url(game.souvenir_image.url)['data']['url']
     message = ("Thanks for playing! Download your pic here: {} "
                "If you like this, you’ll love our event on July 4th: "
                "http://bit.ly/mlbbg").format(url)
