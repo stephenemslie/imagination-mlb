@@ -16,9 +16,8 @@ services:
             - "pgdata:/var/lib/postgresql/data"
 
     postgres-backup:
+        image: schickling/postgres-backup-s3:latest
         restart: always
-        build:
-            context: ./postgres_backup
         depends_on:
             - postgres
         environment:
