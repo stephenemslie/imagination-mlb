@@ -164,6 +164,8 @@ CELERY_BEAT_SCHEDULE = {
     }
 }
 
+BITLY_TOKEN = env('BITLY_TOKEN', default=None)
+
 SLACK_TOKEN = env('SLACK_TOKEN', default=None)
 SLACK_CHANNEL = '#mlb'
 SLACK_BACKEND = 'django_slack.backends.UrllibBackend'
