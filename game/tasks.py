@@ -7,9 +7,10 @@ import boto3
 import chromote
 from celery import shared_task
 from botocore.exceptions import EndpointConnectionError
+from mlb.celery import app
 
 
-@shared_task(bind=True)
+@app.task(bind=True)
 def send_sms(self, recipient, message):
     client = boto3.client('sns',
                           aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
@@ -30,7 +31,7 @@ def send_sms(self, recipient, message):
         self.retry(exc=exc, countdown=2 ** self.request.retries)
 
 
-@shared_task(bind=True)
+@app.task(bind=True)
 def render_souvenir(self, game_id):
     from .models import Game
     game = Game.objects.get(pk=game_id)
@@ -43,9 +44,14 @@ def render_souvenir(self, game_id):
     game.souvenir_image.save('souvenir.png', ContentFile(screenshot))
 
 
-@shared_task
+@app.task
 def periodic_recall():
     from .models import Game
     for game in Game.objects.next_recalls():
         game.recall()
         game.save()
+
+
+@app.on_after_configure.connect
+def setup_periodic_tasks(sender, **kwargs):
+    sender.add_periodic_task(30.0, periodic_recall.s(), name='check recall every 30s')
