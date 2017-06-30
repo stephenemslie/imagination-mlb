@@ -14,7 +14,7 @@ services:
                    "--disable-gpu",
                    "--remote-debugging-address=0.0.0.0",
                    "--remote-debugging-port=9222",
-                   "--window-size=720,1008"]
+                   "--window-size=1080,1080"]
         cap_add:
             - SYS_ADMIN
 

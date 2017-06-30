@@ -27,8 +27,8 @@
     #container {
         position: relative;
         overflow: hidden;
-        width: 720px;
-        height: 1008px;
+        width: 1080px;
+        height: 1080px;
     }
 
     .frame {
@@ -39,16 +39,16 @@
 
     .name {
         position: absolute;
-        left: 38px;
-        bottom: 130px;
-        font-size: 60px;
-        line-height: 70px;
+        left: 68px;
+        bottom: 150px;
+        font-size: 90px;
+        line-height: 100px;
     }
 
     .scorebar {
         position: absolute;
-        left: 30px;
-        top: 920px;
+        left: 60px;
+        bottom: 50px;
     }
 
     .scorebar .score {
@@ -57,22 +57,22 @@
 
     .scorebar .score > div {
         display: inline-block;
-        font-size: 40px;
+        font-size: 60px;
         vertical-align: top;
-        line-height: 40px;
+        line-height: 60px;
         margin: 0 10px;
     }
 
     .scorebar .score .title {
-        font-size: 15px;
-        line-height: 22px;
+        font-size: 22px;
+        line-height: 33px;
     }
 
     .logo {
-        width: 70px;
-        height: 125px;
+        width: 106px;
+        height: 170px;
         position: absolute;
-        left: 609px;
+        right: 60px;
         bottom: 56px;
         background-size: contain;
     }
@@ -117,8 +117,8 @@ window.onload = function () {
     var teamcol = teams["{{ user.team.name | lower }}"];
 
     var canvas = document.createElement('canvas');
-    canvas.width = 720;
-    canvas.height = 1008;
+    canvas.width = 1080;
+    canvas.height = 1080;
     canvas.id = 'card';
     var container = document.getElementById('container');
     container.appendChild(canvas);
@@ -130,7 +130,7 @@ window.onload = function () {
     };
 
     loadImages(sources, function (images) {
-        context.drawImage(images.user, 0, 0, 720, 1008);
+        context.drawImage(images.user, 0, -180, 1080, 1440);
         grayScale(context, canvas);
         context.globalCompositeOperation = 'multiply';
         context.fillStyle = teamcol;
