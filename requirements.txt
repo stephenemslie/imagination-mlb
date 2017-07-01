@@ -9,6 +9,7 @@ django-cors-headers==2.0.2
 django-storages==1.5.2
 django-slack==5.8.0
 djangorestframework==3.6.2
+djangorestframework-csv==2.0.0
 whitenoise==3.3.0
 Pillow==4.1.1
 psycopg2==2.7.1

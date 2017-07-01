@@ -3,10 +3,12 @@ from django.db.models.functions import Trunc
 from django.conf import settings
 
 from rest_framework import viewsets, status, filters
+from rest_framework.settings import api_settings
 from rest_framework.decorators import api_view
 from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.response import Response
 from rest_framework.decorators import detail_route
+from rest_framework_csv.renderers import CSVRenderer
 from django_filters.rest_framework import DjangoFilterBackend, FilterSet, CharFilter, DateFilter
 from django_fsm import can_proceed
 from pysimpledmx.pysimpledmx import DMXConnection
@@ -70,6 +72,7 @@ class GameViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend, filters.OrderingFilter)
     ordering_fields = ('score',)
     filter_class = GameFilter
+    renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES + [CSVRenderer]
 
     @detail_route(methods=['POST'])
     def confirm(self, request, pk=None):
