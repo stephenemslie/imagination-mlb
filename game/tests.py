@@ -70,7 +70,7 @@ class TestPlayerFields(AuthenticatedTestMixin, APITestCase):
     def test_mobile_number(self):
         self.data.pop('mobile_number')
         response = self.client.post(reverse('user-list'), self.data)
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 201)
         self.assertIn('mobile_number', response.json())
 
     def test_team(self):
