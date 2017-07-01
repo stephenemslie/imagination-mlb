@@ -5,7 +5,8 @@ from unittest import mock
 
 from django.conf import settings
 from django.utils.timezone import now
-from rest_framework.test import APITestCase
+from django.test import override_settings
+from rest_framework.test import APITransactionTestCase
 from rest_framework.reverse import reverse
 from PIL import Image
 
@@ -28,7 +29,8 @@ class AuthenticatedTestMixin:
         self.client.credentials(HTTP_AUTHORIZATION='JWT {}'.format(response.data['token']))
 
 
-class TestPlayerFields(AuthenticatedTestMixin, APITestCase):
+@override_settings(CELERY_TASK_ALWAYS_EAGER=True)
+class TestPlayerFields(AuthenticatedTestMixin, APITransactionTestCase):
 
     def setUp(self):
         super().setUp()
@@ -86,7 +88,8 @@ class TestPlayerFields(AuthenticatedTestMixin, APITestCase):
         self.assertEqual(response.status_code, 201)
 
 
-class TestGame(APITestCase):
+@override_settings(CELERY_TASK_ALWAYS_EAGER=True)
+class TestGame(APITransactionTestCase):
 
     def test_confirm_sets_team(self):
         team1 = TeamFactory()
@@ -120,7 +123,8 @@ class TestGame(APITestCase):
         self.assertEqual(user.team, team2)
 
 
-class TestGameStateActions(AuthenticatedTestMixin, APITestCase):
+@override_settings(CELERY_TASK_ALWAYS_EAGER=True)
+class TestGameStateActions(AuthenticatedTestMixin, APITransactionTestCase):
 
     def setUp(self):
         super().setUp()
@@ -192,7 +196,8 @@ class TestGameStateActions(AuthenticatedTestMixin, APITestCase):
             self.assertEqual(Game.objects.get(pk=game.pk).state, 'cancelled')
 
 
-class TestIllegalGameStateChanges(AuthenticatedTestMixin, APITestCase):
+@override_settings(CELERY_TASK_ALWAYS_EAGER=True)
+class TestIllegalGameStateChanges(AuthenticatedTestMixin, APITransactionTestCase):
 
     def setUp(self):
         super().setUp()
@@ -231,7 +236,8 @@ class TestIllegalGameStateChanges(AuthenticatedTestMixin, APITestCase):
             self.assertEqual(response.status_code, 400)
 
 
-class TestCompleteGame(AuthenticatedTestMixin, APITestCase):
+@override_settings(CELERY_TASK_ALWAYS_EAGER=True)
+class TestCompleteGame(AuthenticatedTestMixin, APITransactionTestCase):
 
     @mock.patch('django_fsm.signals.post_transition.send')
     def setUp(self, send):
@@ -262,7 +268,8 @@ class TestCompleteGame(AuthenticatedTestMixin, APITestCase):
         self.assertEqual(self._send.call_args[1]['target'], 'completed')
 
 
-class TestRecallUsersSignal(APITestCase):
+@override_settings(CELERY_TASK_ALWAYS_EAGER=True)
+class TestRecallUsersSignal(APITransactionTestCase):
 
     def setUp(self):
         super().setUp()
@@ -305,7 +312,8 @@ class TestRecallUsersSignal(APITestCase):
 
 
 
-class TestRecall(APITestCase):
+@override_settings(CELERY_TASK_ALWAYS_EAGER=True)
+class TestRecall(APITransactionTestCase):
 
     def setUp(self):
         self.expired_time = now() - datetime.timedelta(minutes=settings.RECALL_WINDOW_MINUTES + 1)
@@ -355,7 +363,8 @@ class TestRecall(APITestCase):
             self.assertEqual(list(Game.objects.next_recalls()), games[:3])
 
 
-class TestGameView(AuthenticatedTestMixin, APITestCase):
+@override_settings(CELERY_TASK_ALWAYS_EAGER=True)
+class TestGameView(AuthenticatedTestMixin, APITransactionTestCase):
 
     def setUp(self):
         super().setUp()
@@ -400,7 +409,8 @@ class TestGameView(AuthenticatedTestMixin, APITestCase):
         self.assertEqual(team2_response.json()['scores'][1]['homeruns'], 200)
 
 
-class TestMethodOverrideMiddleware(AuthenticatedTestMixin, APITestCase):
+@override_settings(CELERY_TASK_ALWAYS_EAGER=True)
+class TestMethodOverrideMiddleware(AuthenticatedTestMixin, APITransactionTestCase):
 
     def test_image_upload(self):
         user = PlayerUserFactory()
@@ -418,7 +428,8 @@ class TestMethodOverrideMiddleware(AuthenticatedTestMixin, APITestCase):
         self.assertEqual(user.image.read(), f.read())
 
 
-class TestSouvenirTask(APITestCase):
+@override_settings(CELERY_TASK_ALWAYS_EAGER=True)
+class TestSouvenirTask(APITransactionTestCase):
 
     def test_called_on_complete(self):
         user = PlayerUserFactory()
