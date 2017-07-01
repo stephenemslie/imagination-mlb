@@ -71,7 +71,14 @@ class TestPlayerFields(AuthenticatedTestMixin, APITestCase):
         self.data.pop('mobile_number')
         response = self.client.post(reverse('user-list'), self.data)
         self.assertEqual(response.status_code, 201)
-        self.assertIn('mobile_number', response.json())
+        self.data['mobile_number'] = ''
+        response = self.client.post(reverse('user-list'), self.data)
+        self.assertEqual(response.status_code, 201)
+        self.data['mobile_number'] = '+447786500944'
+        response = self.client.post(reverse('user-list'), self.data)
+        self.assertEqual(response.status_code, 201)
+        response = self.client.post(reverse('user-list'), self.data)
+        self.assertEqual(response.status_code, 201)
 
     def test_team(self):
         self.data.pop('team')
@@ -416,9 +423,9 @@ class TestSouvenirTask(APITestCase):
     def test_called_on_complete(self):
         user = PlayerUserFactory()
         user.active_game = GameFactory(user=user, state='playing')
-        with mock.patch('game.tasks.render_souvenir.delay') as _delay:
+        with mock.patch('game.tasks.render_souvenir.s') as _delay_partial:
             user.active_game.complete(10, 10, 10)
-            _delay.assert_called()
+            _delay_partial().delay.assert_called()
 
     def test_screenshot_on_complete(self):
         user = PlayerUserFactory()
