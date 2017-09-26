@@ -77,6 +77,11 @@ class Game(models.Model):
     user = models.ForeignKey(User, related_name='games')
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
+    date_recalled = models.DateTimeField(null=True, blank=True)
+    date_confirmed = models.DateTimeField(null=True, blank=True)
+    date_playing = models.DateTimeField(null=True, blank=True)
+    date_completed = models.DateTimeField(null=True, blank=True)
+    date_cancelled = models.DateTimeField(null=True, blank=True)
     distance = models.IntegerField(default=0)
     homeruns = models.IntegerField(default=0)
     score = models.IntegerField(default=0)
@@ -95,15 +100,17 @@ class Game(models.Model):
             query = Team.objects.annotate(member_count=Count('members')).order_by('member_count')
             self.user.team = query[0]
             self.user.save()
+        self.date_confirmed = timezone.now()
 
     @transition(field=state, source='queued', target='recalled')
     def recall(self):
         if self.user.mobile_number:
             self.user.send_recall_sms()
+            self.date_recalled = timezone.now()
 
     @transition(field=state, source='confirmed', target='playing')
     def play(self):
-        pass
+        self.date_playing = timezone.now()
 
     @transition(field=state, source='playing', target='completed')
     def complete(self, score, distance, homeruns):
@@ -114,7 +121,8 @@ class Game(models.Model):
             s = render_souvenir.s(self.pk)
             s.link(send_souvenir_sms.s())
             s.delay()
+        self.date_completed = timezone.now()
 
     @transition(field=state, source='*', target='cancelled')
     def cancel(self):
-        pass
+        self.date_cancelled = timezone.now()
