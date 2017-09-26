@@ -15,6 +15,11 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='game',
+            name='date_queued',
+            field=models.DateTimeField(blank=True, null=True),
+        ),
+        migrations.AddField(
+            model_name='game',
             name='date_cancelled',
             field=models.DateTimeField(blank=True, null=True),
         ),

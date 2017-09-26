@@ -77,6 +77,7 @@ class Game(models.Model):
     user = models.ForeignKey(User, related_name='games')
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
+    date_queued = models.DateTimeField(null=True, blank=True)
     date_recalled = models.DateTimeField(null=True, blank=True)
     date_confirmed = models.DateTimeField(null=True, blank=True)
     date_playing = models.DateTimeField(null=True, blank=True)
@@ -92,7 +93,7 @@ class Game(models.Model):
 
     @transition(field=state, source=['recalled', 'new'], target='queued')
     def queue(self):
-        pass
+        self.date_queued = timezone.now()
 
     @transition(field=state, source=['new', 'queued', 'recalled'], target='confirmed')
     def confirm(self):
