@@ -1,5 +1,6 @@
 
 import os
+import raven
 import environ
 from game.util import Env
 root = environ.Path(__file__) - 2
@@ -38,6 +39,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_slack',
     'game.apps.GameConfig',
+    'raven.contrib.django.raven_compat'
 ]
 
 MIDDLEWARE = [
@@ -199,3 +201,8 @@ DMX_EVENTS = {'LA': (1, 11),
 if DEBUG is False:
     DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
     AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME', default='mlb-django')
+
+    RAVEN_CONFIG = {
+        'dsn': env('SENTRY_DSN'),
+        'release': raven.fetch_git_sha(SITE_ROOT),
+    }
