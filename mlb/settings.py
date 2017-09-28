@@ -155,6 +155,15 @@ LOGGING = {
 CHROME_REMOTE_HOST = env('CHROME_REMOTE_HOST', default='chrome')
 DJANGO_HOST = env('DJANGO_HOST', default='django:8000')
 
+CELERY_BROKER_URL = env('CELERY_BROKER_URL', default='redis://redis:6379/0')
+CELERY_TASK_ALWAYS_EAGER = env.bool('CELERY_TASK_ALWAYS_EAGER', default=False)
+CELERY_BEAT_SCHEDULE = {
+    'periodic-recall': {
+        'task': 'game.tasks.periodic_recall',
+        'schedule': 30.0
+    }
+}
+
 BITLY_TOKEN = env('BITLY_TOKEN', default=None)
 
 SLACK_TOKEN = env('SLACK_TOKEN', default=None)
@@ -172,16 +181,6 @@ AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY', default=None)
 AWS_REGION_NAME = env('AWS_REGION_NAME', default='eu-west-1')
 AWS_S3_FILE_OVERWRITE = False
 AWS_QUERYSTRING_AUTH = False
-
-CELERY_BROKER_URL = env('CELERY_BROKER_URL', default='sqs://{}:{}@'.format(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY))
-CELERY_BROKER_TRANSPORT_OPTIONS = {'region': 'eu-west-1'}
-CELERY_TASK_ALWAYS_EAGER = env.bool('CELERY_TASK_ALWAYS_EAGER', default=False)
-CELERY_BEAT_SCHEDULE = {
-    'periodic-recall': {
-        'task': 'game.tasks.periodic_recall',
-        'schedule': 30.0
-    }
-}
 
 CORS_ORIGIN_ALLOW_ALL = env.bool('CORS_ORIGIN_ALLOW_ALL', default=False)
 CORS_ORIGIN_WHITELIST = env.list('CORS_ORIGIN_WHITELIST', default='localhost:8000')
