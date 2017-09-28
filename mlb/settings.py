@@ -1,5 +1,6 @@
 
 import os
+import raven
 import environ
 from game.util import Env
 root = environ.Path(__file__) - 2
@@ -36,8 +37,8 @@ INSTALLED_APPS = [
     'django_fsm',
     'crispy_forms',
     'rest_framework',
-    'django_slack',
     'game.apps.GameConfig',
+    'raven.contrib.django.raven_compat'
 ]
 
 MIDDLEWARE = [
@@ -128,30 +129,6 @@ REST_FRAMEWORK = {
     ),
 }
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'filters': {
-        'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse',
-        },
-    },
-    'handlers': {
-        'slack_admins': {
-            'level': 'ERROR',
-            'filters': ['require_debug_false'],
-            'class': 'django_slack.log.SlackExceptionHandler',
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['slack_admins'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-    },
-}
-
 CHROME_REMOTE_HOST = env('CHROME_REMOTE_HOST', default='chrome')
 DJANGO_HOST = env('DJANGO_HOST', default='django:8000')
 
@@ -165,11 +142,6 @@ CELERY_BEAT_SCHEDULE = {
 }
 
 BITLY_TOKEN = env('BITLY_TOKEN', default=None)
-
-SLACK_TOKEN = env('SLACK_TOKEN', default=None)
-SLACK_CHANNEL = '#mlb'
-SLACK_BACKEND = 'django_slack.backends.UrllibBackend'
-SLACK_USERNAME = 'django'
 
 RECALL_DISABLE = env.bool('RECALL_DISABLE', default=False)
 RECALL_WINDOW_SIZE = env('RECALL_WINDOW_SIZE', default=2)
@@ -199,3 +171,8 @@ DMX_EVENTS = {'LA': (1, 11),
 if DEBUG is False:
     DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
     AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME', default='mlb-django')
+
+    RAVEN_CONFIG = {
+        'dsn': env('SENTRY_DSN'),
+        'release': raven.fetch_git_sha(SITE_ROOT),
+    }
