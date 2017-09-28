@@ -12,6 +12,7 @@ services:
             SECRET_KEY: 'thyzNahan'
             DATABASE_URL: 'psql://postgres:postgres@postgres:5432/postgres'
             CELERY_TASK_ALWAYS_EAGER: 'True'
+            CELERY_BROKER_URL: 'redis://redis:6379/0'
     celery:
         volumes:
             - '.:/app'
@@ -20,3 +21,7 @@ services:
             RECALL_DISABLE: 'True'
             SECRET_KEY: 'thyzNahan'
             DATABASE_URL: 'psql://postgres:postgres@postgres:5432/postgres'
+            CELERY_BROKER_URL: 'redis://redis:6379/0'
+    redis:
+        image: redis:3.0-alpine
+
