@@ -93,7 +93,7 @@ class Game(models.Model):
 
     @transition(field=state, source=['recalled', 'new'], target='queued')
     def queue(self):
-        self.date_queued = timezone.now()
+        pass
 
     @transition(field=state, source=['new', 'queued', 'recalled'], target='confirmed')
     def confirm(self):
@@ -101,17 +101,15 @@ class Game(models.Model):
             query = Team.objects.annotate(member_count=Count('members')).order_by('member_count')
             self.user.team = query[0]
             self.user.save()
-        self.date_confirmed = timezone.now()
 
     @transition(field=state, source='queued', target='recalled')
     def recall(self):
         if self.user.mobile_number:
             self.user.send_recall_sms()
-            self.date_recalled = timezone.now()
 
     @transition(field=state, source='confirmed', target='playing')
     def play(self):
-        self.date_playing = timezone.now()
+        pass
 
     @transition(field=state, source='playing', target='completed')
     def complete(self, score, distance, homeruns):
@@ -122,8 +120,7 @@ class Game(models.Model):
             s = render_souvenir.s(self.pk)
             s.link(send_souvenir_sms.s())
             s.delay()
-        self.date_completed = timezone.now()
 
     @transition(field=state, source='*', target='cancelled')
     def cancel(self):
-        self.date_cancelled = timezone.now()
+        pass
