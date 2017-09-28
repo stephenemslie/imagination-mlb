@@ -20,7 +20,6 @@ services:
         build: .
         depends_on:
             - postgres
-            - redis
         environment:
             DJANGO_SETTINGS_MODULE: 'mlb.settings'
         command: runserver
@@ -30,7 +29,6 @@ services:
         build: .
         depends_on:
             - postgres
-            - redis
             - chrome
         command: celery
 
