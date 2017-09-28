@@ -14,7 +14,7 @@ def recall_users(sender, instance, name, source, target, **kwargs):
 
 
 @receiver(post_transition, sender=Game)
-def recall_users(sender, instance, name, source, target, **kwargs):
+def log_state_change(sender, instance, name, source, target, **kwargs):
     date_field = 'date_{}'.format(target)
     try:
         state_changed = getattr(instance, date_field)
