@@ -2,9 +2,10 @@ from io import BytesIO
 import logging
 import datetime
 from unittest import mock
+from contextlib import contextmanager
 
 from django.conf import settings
-from django.utils.timezone import now
+from django.utils import timezone
 from django.test import override_settings
 from rest_framework.test import APITransactionTestCase
 from rest_framework.reverse import reverse
@@ -14,6 +15,7 @@ from .factories import AdminUserFactory, PlayerUserFactory, GameFactory, TeamFac
 from .models import User, Game
 from .views import set_lighting
 from .signals import recall_users
+from .serializers import GameSerializer
 
 
 logging.disable(logging.CRITICAL)
@@ -197,6 +199,65 @@ class TestGameStateActions(AuthenticatedTestMixin, APITransactionTestCase):
 
 
 @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
+class TestGameStateLog(AuthenticatedTestMixin, APITransactionTestCase):
+
+    @mock.patch.object(User, 'send_recall_sms')
+    def setUp(self, send_recall_sms):
+        super().setUp()
+        game = GameFactory()
+        with self._patch_now(offset=1) as self.dt1:
+            game.queue()
+        with self._patch_now(offset=2) as self.dt2:
+            game.recall()
+        with self._patch_now(offset=3) as self.dt3:
+            game.confirm()
+        with self._patch_now(offset=4) as self.dt4:
+            game.play()
+        with self._patch_now(offset=5) as self.dt5:
+            game.complete(1, 1, 1)
+        with self._patch_now(offset=6) as self.dt6:
+            game.cancel()
+        self.game = game
+        self.states = {'date_queued': self.dt1,
+                       'date_recalled': self.dt2,
+                       'date_confirmed': self.dt3,
+                       'date_playing': self.dt4,
+                       'date_completed': self.dt5,
+                       'date_cancelled': self.dt6}
+
+    @contextmanager
+    def _patch_now(self, offset=1):
+        dt = timezone.now() + datetime.timedelta(hours=offset)
+        with mock.patch.object(timezone, 'now') as _now:
+            _now.return_value = dt
+            yield dt
+
+    def _dt_to_representation(self, dt):
+        to_representation = GameSerializer().fields['date_queued'].to_representation
+        return to_representation(dt)
+
+    def test_model_values(self):
+        game = Game.objects.get(pk=self.game.pk)
+        for field, dt in self.states.items():
+            self.assertEqual(getattr(game, field), dt)
+
+    def test_api_values(self):
+        response = self.client.get(reverse('game-detail', args=(self.game.pk,)))
+        data = response.json()
+        for field, dt in self.states.items():
+            self.assertEqual(data[field], self._dt_to_representation(dt))
+
+    def test_readonly_dates(self):
+        user = PlayerUserFactory()
+        game = GameFactory()
+        for field, dt in self.states.items():
+            post_data = {field: self._dt_to_representation(dt)}
+            response = self.client.patch(reverse('game-detail', args=(game.pk,)), data=post_data)
+            data = response.json()
+            self.assertEqual(data[field], None)
+
+
+@override_settings(CELERY_TASK_ALWAYS_EAGER=True)
 class TestIllegalGameStateChanges(AuthenticatedTestMixin, APITransactionTestCase):
 
     def setUp(self):
@@ -316,7 +377,7 @@ class TestRecallUsersSignal(APITransactionTestCase):
 class TestRecall(APITransactionTestCase):
 
     def setUp(self):
-        self.expired_time = now() - datetime.timedelta(minutes=settings.RECALL_WINDOW_MINUTES + 1)
+        self.expired_time = timezone.now() - datetime.timedelta(minutes=settings.RECALL_WINDOW_MINUTES + 1)
         GameFactory(state='new')
 
     def test_active_recalls(self):
@@ -357,7 +418,7 @@ class TestRecall(APITransactionTestCase):
         games = []
         for i in reversed(range(10)):
             game = GameFactory(state='queued')
-            game.date_created = now() - datetime.timedelta(minutes=i)
+            game.date_created = timezone.now() - datetime.timedelta(minutes=i)
             games.append(game)
         with self.settings(RECALL_WINDOW_SIZE=3):
             self.assertEqual(list(Game.objects.next_recalls()), games[:3])
@@ -378,7 +439,7 @@ class TestGameView(AuthenticatedTestMixin, APITransactionTestCase):
             game = GameFactory(state='completed', score=20, distance=20, homeruns=20)
             game.user.team = self.team_2
             game.user.save()
-        yesterday = now() - datetime.timedelta(days=1)
+        yesterday = timezone.now() - datetime.timedelta(days=1)
         for i in range(20):
             game = GameFactory(state='completed', score=10, distance=10, homeruns=10)
             game.date_created = yesterday
