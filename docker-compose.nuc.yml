@@ -4,3 +4,6 @@ services:
     django:
         devices:
             - "/dev/ttyUSB0:/dev/ttyUSB0"
+    postgres:
+        ports:
+            - "5432:5432"
