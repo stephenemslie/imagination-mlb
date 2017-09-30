@@ -3,7 +3,7 @@ import uuid
 from rest_framework import serializers
 from phonenumber_field.modelfields import PhoneNumberField
 
-from .models import User, Game, Team
+from .models import User, Game, Team, Show
 
 
 class AuthenticatedFieldsMixin:
@@ -32,20 +32,24 @@ class BaseUserSerializer(AuthenticatedFieldsMixin, serializers.ModelSerializer):
     team = serializers.SlugRelatedField(required=False, allow_null=True, slug_field='name', queryset=Team.objects.all())
     team_url = serializers.HyperlinkedRelatedField(read_only=True, source='team', view_name='team-detail')
     mobile_number = serializers.CharField(validators=PhoneNumberField().validators, allow_blank=True, required=False)
+    show = serializers.PrimaryKeyRelatedField(queryset=Show.objects.all(), required=False, write_only=True)
 
     class Meta:
         model = User
         fields = ('url', 'id', 'first_name', 'last_name', 'mobile_number',
                   'email', 'games', 'active_game', 'team', 'team_url', 'image',
-                  'handedness', 'signed_waiver')
+                  'handedness', 'signed_waiver', 'show')
         extra_kwargs = {'handedness': {'required': True},
                         'first_name': {'required': True}}
         auth_fields = ('mobile_number', 'email')
 
     def create(self, validated_data):
         validated_data['username'] = str(uuid.uuid4())
+        show = validated_data.pop('show', None)
+        if show is None:
+            show = Show.objects.order_by('-date')[0]
         user = super().create(validated_data)
-        game = Game.objects.create(user=user)
+        game = Game.objects.create(user=user, show=show)
         user.active_game = game
         user.save()
         if user.mobile_number:
