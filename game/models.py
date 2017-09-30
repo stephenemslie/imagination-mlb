@@ -13,6 +13,13 @@ from phonenumber_field.modelfields import PhoneNumberField
 from .tasks import send_sms, render_souvenir, send_souvenir_sms
 
 
+class Show(models.Model):
+    name = models.CharField(max_length=255)
+    date = models.DateField()
+    welcome_message = models.CharField(max_length=160)
+    recall_message = models.CharField(max_length=160)
+
+
 class Team(models.Model):
     name = models.CharField(max_length=128, unique=True)
 
@@ -75,6 +82,7 @@ class GameQuerySet(models.QuerySet):
 
 class Game(models.Model):
     user = models.ForeignKey(User, related_name='games')
+    show = models.ForeignKey(Show, related_name='games')
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
     date_queued = models.DateTimeField(null=True, blank=True)
