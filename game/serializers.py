@@ -71,7 +71,7 @@ class BaseGameSerializer(serializers.ModelSerializer):
         fields = ('url', 'id', 'user', 'user_id', 'date_created',
                   'date_queued', 'date_recalled', 'date_confirmed',
                   'date_playing', 'date_completed', 'date_cancelled',
-                  'distance', 'homeruns', 'score', 'state', 'souvenir_image')
+                  'distance', 'homeruns', 'score', 'state', 'souvenir_image', 'show')
         read_only_fields = ('url', 'id', 'date_created', 'date_updated',
                             'date_queued', 'date_recalled', 'date_confirmed',
                             'date_playing', 'date_completed', 'date_cancelled',
@@ -82,13 +82,17 @@ class GameSerializer(BaseGameSerializer):
 
     user = BaseUserSerializer(read_only=True)
     user_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    show = ShowSerializer(required=False)
 
     def create(self, validated_data):
         active_game = validated_data['user_id'].active_game
         if active_game and active_game.state not in ('completed', 'cancelled'):
             detail = "User's active game must be completed or cancelled first."
             raise serializers.ValidationError(detail)
-        game = super().create({'user': validated_data['user_id']})
+        validated_data['user'] = validated_data.pop('user_id')
+        if validated_data.get('show') is None:
+            validated_data['show'] = Show.objects.order_by('-date')[0]
+        game = super().create(validated_data)
         game.user.active_game = game
         game.user.save()
         return game
