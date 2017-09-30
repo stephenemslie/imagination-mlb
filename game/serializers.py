@@ -57,6 +57,13 @@ class BaseUserSerializer(AuthenticatedFieldsMixin, serializers.ModelSerializer):
         return user
 
 
+class ShowSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Show
+        fields = ('id', 'name', 'date')
+
+
 class BaseGameSerializer(serializers.ModelSerializer):
 
     class Meta:
