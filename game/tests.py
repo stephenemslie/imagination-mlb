@@ -219,7 +219,9 @@ class TestGameStateLog(AuthenticatedTestMixin, APITransactionTestCase):
 
     def setUp(self):
         super().setUp()
-        game = GameFactory()
+        user = PlayerUserFactory()
+        game= GameFactory(user=user)
+        user.active_game = game
         with self._patch_now(offset=1) as self.dt1:
             game.queue()
         with self._patch_now(offset=2) as self.dt2:
