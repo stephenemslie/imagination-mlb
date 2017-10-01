@@ -55,6 +55,21 @@ class UserViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return self.queryset.filter(is_staff=False, is_superuser=False, is_active=True)
 
+    @detail_route(methods=['POST'])
+    def recall(self, request, pk=None):
+        user = self.get_object()
+        game = user.active_game
+        if game is None:
+            error = {'error': 'User has no active game to recall'}
+            return Response(error, status=status.HTTP_400_BAD_REQUEST)
+        if not can_proceed(game.recall):
+            error = {'error': 'Illegal state change {} -> {}'.format(game.state, 'recalled')}
+            return Response(error, status=status.HTTP_400_BAD_REQUEST)
+        user.recall()
+        user.save()
+        serializer = self.get_serializer(user)
+        return Response(serializer.data)
+
 
 class GameFilter(FilterSet, DateFilterMixin):
     date_created = DateFilter(method='filter_date')
@@ -103,17 +118,6 @@ class GameViewSet(viewsets.ModelViewSet):
             error = {'error': 'Illegal state change {} -> {}'.format(game.state, 'playing')}
             return Response(error, status=status.HTTP_400_BAD_REQUEST)
         game.play()
-        game.save()
-        serializer = self.get_serializer(game)
-        return Response(serializer.data)
-
-    @detail_route(methods=['POST'])
-    def recall(self, request, pk=None):
-        game = self.get_object()
-        if not can_proceed(game.recall):
-            error = {'error': 'Illegal state change {} -> {}'.format(game.state, 'recalled')}
-            return Response(error, status=status.HTTP_400_BAD_REQUEST)
-        game.recall()
         game.save()
         serializer = self.get_serializer(game)
         return Response(serializer.data)
