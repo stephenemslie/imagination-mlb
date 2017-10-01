@@ -73,8 +73,6 @@ class User(AbstractUser):
 
     def recall(self):
         self.active_game.recall()
-        if self.mobile_number:
-            self.send_recall_sms()
         self.active_game.save()
 
     def send_welcome_sms(self):
@@ -116,7 +114,8 @@ class Game(models.Model):
 
     @transition(field=state, source='queued', target='recalled')
     def recall(self):
-        pass
+        if self.user.mobile_number:
+            self.user.send_recall_sms()
 
     @transition(field=state, source='confirmed', target='playing')
     def play(self):
