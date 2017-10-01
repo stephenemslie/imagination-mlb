@@ -71,15 +71,11 @@ class User(AbstractUser):
     objects = UserQuerySet.as_manager()
 
     def send_welcome_sms(self):
-        message = ("Welcome to #mlbbattlegrounds. We’ll text you when it’s your "
-                   "turn to bat. Enjoy Boston or L.A. food while you wait. Prepare "
-                   "for beastmode!")
+        message = self.active_game.show.welcome_message
         send_sms.delay(self.mobile_number.as_e164, message)
 
     def send_recall_sms(self):
-        message = ("Ready to smash it? Because it’s your turn to bat now! "
-                   "Please head over to the batting cage where we’re waiting for "
-                   "you. Do your team proud!")
+        message = self.active_game.show.recall_message
         send_sms.delay(self.mobile_number.as_e164, message)
 
 
