@@ -73,7 +73,5 @@ def send_souvenir_sms(game_id):
     from .models import Game
     game = Game.objects.get(pk=game_id)
     url = shorten_url(game.souvenir_image.url)['data']['url']
-    message = ("Thanks for playing! Download your pic here: {} "
-               "If you like this, you’ll love our event on July 4th: "
-               "http://bit.ly/mlbbg").format(url)
+    message = game.show.souvenir_message.format(url)
     send_sms.delay(game.user.mobile_number.as_e164, message)

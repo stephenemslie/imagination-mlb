@@ -10,7 +10,15 @@ from django.utils import timezone
 from django_fsm import FSMField, transition
 from phonenumber_field.modelfields import PhoneNumberField
 
-from .tasks import send_sms, render_souvenir, send_souvenir_sms
+from .tasks import send_sms
+
+
+class Show(models.Model):
+    name = models.CharField(max_length=255)
+    date = models.DateField()
+    welcome_message = models.CharField(max_length=160)
+    recall_message = models.CharField(max_length=160)
+    souvenir_message = models.CharField(max_length=130)
 
 
 class Team(models.Model):
@@ -43,15 +51,11 @@ class User(AbstractUser):
     signed_waiver = models.BooleanField(default=False)
 
     def send_welcome_sms(self):
-        message = ("Welcome to #mlbbattlegrounds. We’ll text you when it’s your "
-                   "turn to bat. Enjoy Boston or L.A. food while you wait. Prepare "
-                   "for beastmode!")
+        message = self.active_game.show.welcome_message
         send_sms.delay(self.mobile_number.as_e164, message)
 
     def send_recall_sms(self):
-        message = ("Ready to smash it? Because it’s your turn to bat now! "
-                   "Please head over to the batting cage where we’re waiting for "
-                   "you. Do your team proud!")
+        message = self.active_game.show.recall_message
         send_sms.delay(self.mobile_number.as_e164, message)
 
 
@@ -75,6 +79,7 @@ class GameQuerySet(models.QuerySet):
 
 class Game(models.Model):
     user = models.ForeignKey(User, related_name='games')
+    show = models.ForeignKey(Show, related_name='games')
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
     date_queued = models.DateTimeField(null=True, blank=True)
@@ -116,10 +121,6 @@ class Game(models.Model):
         self.score = score
         self.distance = distance
         self.homeruns = homeruns
-        if self.user.mobile_number:
-            s = render_souvenir.s(self.pk)
-            s.link(send_souvenir_sms.s())
-            s.delay()
 
     @transition(field=state, source='*', target='cancelled')
     def cancel(self):

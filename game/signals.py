@@ -3,6 +3,7 @@ from django.utils import timezone
 from django_fsm.signals import post_transition
 
 from .models import Game
+from .tasks import render_souvenir, send_souvenir_sms
 
 
 @receiver(post_transition, sender=Game)
@@ -11,6 +12,14 @@ def recall_users(sender, instance, name, source, target, **kwargs):
         for game in Game.objects.next_recalls():
             game.recall()
             game.save()
+
+
+@receiver(post_transition, sender=Game)
+def send_souvenir(sender, instance, name, source, target, **kwargs):
+    if target == 'completed' and instance.user.mobile_number:
+        s = render_souvenir.s(instance.pk)
+        s.link(send_souvenir_sms.s())
+        s.delay()
 
 
 @receiver(post_transition, sender=Game)

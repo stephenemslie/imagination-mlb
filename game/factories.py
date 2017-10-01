@@ -24,6 +24,18 @@ class AdminUserFactory(factory.django.DjangoModelFactory):
     password = factory.PostGenerationMethodCall('set_password', 'adm1n')
 
 
+class ShowFactory(factory.django.DjangoModelFactory):
+
+    class Meta:
+        model = 'game.Show'
+
+    name = factory.Faker('word')
+    date = factory.Faker('date')
+    welcome_message = "Welcome message"
+    recall_message = "Recall message"
+    souvenir_message = "Souvenir message. Url is: {}"
+
+
 class PlayerUserFactory(factory.django.DjangoModelFactory):
 
     class Meta:
@@ -44,3 +56,4 @@ class GameFactory(factory.django.DjangoModelFactory):
         model = 'game.Game'
 
     user = factory.SubFactory(PlayerUserFactory)
+    show = factory.SubFactory(ShowFactory)
