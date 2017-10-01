@@ -57,3 +57,9 @@ class GameFactory(factory.django.DjangoModelFactory):
 
     user = factory.SubFactory(PlayerUserFactory)
     show = factory.SubFactory(ShowFactory)
+
+    @factory.post_generation
+    def set_active_game(self, create, extracted, **kwargs):
+        self.user.active_game_id = self.pk
+        self.user.save()
+        self.save()
