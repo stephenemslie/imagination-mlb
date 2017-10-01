@@ -169,7 +169,7 @@ DMX_EVENTS = {'LA': (1, 11),
               'in-game': (1, 8)}
 
 if DEBUG is False:
-    database['nuc'] = env.db('NUC_DATABASE_URL')
+    DATABASES['nuc'] = env.db('NUC_DATABASE_URL')
     DATABASE_ROUTERS = ['game.router.GameRouter']
     DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
     AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME', default='mlb-django')
