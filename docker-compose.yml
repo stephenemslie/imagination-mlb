@@ -5,6 +5,9 @@ services:
     redis:
         image: redis:3.0-alpine
 
+    postgres:
+        image: postgres:9.6.3-alpine
+
     chrome:
         image: justinribeiro/chrome-headless
         command: [ "--headless",
