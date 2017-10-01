@@ -148,9 +148,7 @@ class TestGameStateActions(AuthenticatedTestMixin, APITransactionTestCase):
 
     def setUp(self):
         super().setUp()
-        self.player = PlayerUserFactory()
-        self.player.active_game = GameFactory(user=self.player)
-        self.player.save()
+        self.game = GameFactory()
         self.team = TeamFactory()
 
     def test_game_on_create(self):
@@ -166,43 +164,43 @@ class TestGameStateActions(AuthenticatedTestMixin, APITransactionTestCase):
         self.assertEqual(game.state, 'new')
 
     def test_second_game_requires_completion(self):
-        data = {'user_id': self.player.pk}
+        game = GameFactory(state='new')
+        data = {'user_id': game.user.pk}
         response = self.client.post(reverse('game-list'), data)
         self.assertEqual(response.status_code, 400)
-        self.player.active_game = GameFactory(user=self.player, state='completed')
-        self.player.save()
+        GameFactory(user=game.user, state='completed')
         response = self.client.post(reverse('game-list'), data)
-        player = User.objects.get(pk=self.player.pk)
+        player = User.objects.get(pk=game.user.pk)
         self.assertEqual(response.status_code, 201)
         self.assertEqual(player.active_game.pk, response.json()['id'])
 
     def test_direct_confirm(self):
-        response = self.client.post(reverse('game-confirm', args=(self.player.active_game.pk,)))
-        game = Game.objects.get(pk=self.player.active_game.pk)
+        response = self.client.post(reverse('game-confirm', args=(self.game.pk,)))
+        game = Game.objects.get(pk=self.game.pk)
         self.assertEqual(game.state, 'confirmed')
 
     def test_queue(self):
-        response = self.client.post(reverse('game-queue', args=(self.player.active_game.pk,)))
-        game = Game.objects.get(pk=self.player.active_game.pk)
+        response = self.client.post(reverse('game-queue', args=(self.game.pk,)))
+        game = Game.objects.get(pk=self.game.pk)
         self.assertEqual(game.state, 'queued')
 
     @mock.patch.object(User, 'send_recall_sms')
     def test_recall(self, send_recall_sms):
-        self.client.post(reverse('game-queue', args=(self.player.active_game.pk,)))
-        self.client.post(reverse('user-recall', args=(self.player.pk,)))
+        self.client.post(reverse('game-queue', args=(self.game.pk,)))
+        self.client.post(reverse('game-recall', args=(self.game.pk,)))
         send_recall_sms.assert_called()
 
     def test_requeue(self):
-        self.assertEqual(Game.objects.get(pk=self.player.active_game.pk).state, 'new')
-        self.client.post(reverse('game-queue', args=(self.player.active_game.pk,)))
-        self.client.post(reverse('user-recall', args=(self.player.pk,)))
-        self.client.post(reverse('game-queue', args=(self.player.active_game.pk,)))
-        self.assertEqual(Game.objects.get(pk=self.player.active_game.pk).state, 'queued')
+        self.assertEqual(Game.objects.get(pk=self.game.pk).state, 'new')
+        self.client.post(reverse('game-queue', args=(self.game.pk,)))
+        self.client.post(reverse('game-recall', args=(self.game.pk,)))
+        self.client.post(reverse('game-queue', args=(self.game.pk,)))
+        self.assertEqual(Game.objects.get(pk=self.game.pk).state, 'queued')
 
     def test_play(self):
-        self.player.active_game = GameFactory(user=self.player, state='confirmed')
-        response = self.client.post(reverse('game-play', args=(self.player.active_game.pk,)))
-        game = Game.objects.get(pk=self.player.active_game.pk)
+        game = GameFactory(state='confirmed')
+        response = self.client.post(reverse('game-play', args=(game.pk,)))
+        game = Game.objects.get(pk=game.pk)
         self.assertEqual(game.state, 'playing')
 
     def test_cancel(self):
@@ -219,9 +217,7 @@ class TestGameStateLog(AuthenticatedTestMixin, APITransactionTestCase):
 
     def setUp(self):
         super().setUp()
-        user = PlayerUserFactory()
-        game= GameFactory(user=user)
-        user.active_game = game
+        game = GameFactory()
         with self._patch_now(offset=1) as self.dt1:
             game.queue()
         with self._patch_now(offset=2) as self.dt2:
@@ -277,40 +273,34 @@ class TestGameStateLog(AuthenticatedTestMixin, APITransactionTestCase):
 @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
 class TestIllegalGameStateChanges(AuthenticatedTestMixin, APITransactionTestCase):
 
-    def setUp(self):
-        super().setUp()
-        self.player = PlayerUserFactory()
-        self.player.active_game = GameFactory(user=self.player)
-        self.team = TeamFactory()
-
     def test_queue(self):
         for state in ('confirmed', 'playing', 'completed'):
-            self.player.active_game = GameFactory(user=self.player, state=state)
-            response = self.client.post(reverse('game-queue', args=(self.player.active_game.pk,)))
+            game = GameFactory(state=state)
+            response = self.client.post(reverse('game-queue', args=(game.pk,)))
             self.assertEqual(response.status_code, 400)
 
     def test_recall(self):
         for state in ('new', 'confirmed', 'playing', 'completed'):
-            self.player.active_game = GameFactory(user=self.player, state=state)
-            response = self.client.post(reverse('user-recall', args=(self.player.pk,)))
+            game = GameFactory(state=state)
+            response = self.client.post(reverse('game-recall', args=(game.pk,)))
             self.assertEqual(response.status_code, 400)
 
     def test_confirm(self):
         for state in ('playing', 'complete'):
-            self.player.active_game = GameFactory(user=self.player, state=state)
-            response = self.client.post(reverse('game-confirm', args=(self.player.active_game.pk,)))
+            game = GameFactory(state=state)
+            response = self.client.post(reverse('game-confirm', args=(game.pk,)))
             self.assertEqual(response.status_code, 400)
 
     def test_play(self):
         for state in ('new', 'queued', 'recalled', 'completed'):
-            self.player.active_game = GameFactory(user=self.player, state=state)
-            response = self.client.post(reverse('game-play', args=(self.player.active_game.pk,)))
+            game = GameFactory(state=state)
+            response = self.client.post(reverse('game-play', args=(game.pk,)))
             self.assertEqual(response.status_code, 400)
 
     def test_complete(self):
         for state in ('new', 'queued', 'recalled', 'confirmed'):
-            self.player.active_game = GameFactory(user=self.player, state=state)
-            response = self.client.post(reverse('game-complete', args=(self.player.active_game.pk,)))
+            game = GameFactory(state=state)
+            response = self.client.post(reverse('game-complete', args=(game.pk,)))
             self.assertEqual(response.status_code, 400)
 
 
@@ -321,12 +311,10 @@ class TestCompleteGame(AuthenticatedTestMixin, APITransactionTestCase):
     def setUp(self, send):
         super().setUp()
         self.score_data = {'score': 100, 'homeruns': 3, 'distance': 100}
-        self.player = PlayerUserFactory()
-        self.player.active_game = GameFactory(user=self.player, state='playing')
-        game_id = self.player.active_game.pk
+        game = GameFactory(state='playing')
         with mock.patch('game.tasks.render_souvenir.delay'):
-            self.response = self.client.post(reverse('game-complete', args=(game_id,)), self.score_data)
-        self.game = Game.objects.get(pk=game_id)
+            self.response = self.client.post(reverse('game-complete', args=(game.pk,)), self.score_data)
+        self.game = Game.objects.get(pk=game.pk)
         self._send = send
 
     def test_state(self):
@@ -352,9 +340,7 @@ class TestRecallUsersSignal(APITransactionTestCase):
     def setUp(self):
         super().setUp()
         for i in range(10):
-            user = PlayerUserFactory()
-            user.active_game = GameFactory(user=user, state='queued')
-            user.save()
+            GameFactory(state='queued')
 
     def _recall_users(self, state):
         with mock.patch.object(User, 'send_recall_sms') as _send_recall_sms:
@@ -406,12 +392,10 @@ class TestRecall(APITransactionTestCase):
         """
         for state in ('new', 'confirmed', 'playing', 'completed', 'cancelled',
                       'recalled', 'recalled', 'recalled'):
-            user = PlayerUserFactory()
-            user.active_game = GameFactory(user=user, state=state)
-            user.save()
-        self.assertEqual(User.objects.active_recalls().count(), 3)
-        Game.objects.filter(pk=user.active_game.pk).update(date_updated=self.expired_time)
-        self.assertEqual(User.objects.active_recalls().count(), 2)
+            game = GameFactory(state=state)
+        self.assertEqual(Game.objects.active_recalls().count(), 3)
+        Game.objects.filter(pk=game.pk).update(date_updated=self.expired_time)
+        self.assertEqual(Game.objects.active_recalls().count(), 2)
 
     def test_next_recalls(self):
         """Test next_recalls.
@@ -421,34 +405,27 @@ class TestRecall(APITransactionTestCase):
         """
         for state in ('new', 'confirmed', 'playing', 'completed', 'cancelled',
                       'recalled', 'recalled', 'recalled'):
-            user = PlayerUserFactory()
-            user.active_game = GameFactory(user=user, state=state)
-            user.save()
-        Game.objects.filter(pk=user.active_game.pk).update(date_updated=self.expired_time)
+            game = GameFactory(state=state)
+        Game.objects.filter(pk=game.pk).update(date_updated=self.expired_time)
         for i in range(10):
-            user = PlayerUserFactory()
-            user.active_game = GameFactory(user=user, state='queued')
-            user.save()
+            GameFactory(state='queued')
         with self.settings(RECALL_WINDOW_SIZE=1):
-            self.assertEqual(User.objects.next_recalls().count(), 0)
+            self.assertEqual(Game.objects.next_recalls().count(), 0)
         with self.settings(RECALL_WINDOW_SIZE=2):
-            self.assertEqual(User.objects.next_recalls().count(), 0)
+            self.assertEqual(Game.objects.next_recalls().count(), 0)
         with self.settings(RECALL_WINDOW_SIZE=3):
-            self.assertEqual(User.objects.next_recalls().count(), 1)
+            self.assertEqual(Game.objects.next_recalls().count(), 1)
         with self.settings(RECALL_WINDOW_SIZE=4):
-            self.assertEqual(User.objects.next_recalls().count(), 2)
+            self.assertEqual(Game.objects.next_recalls().count(), 2)
 
     def test_queue_order(self):
-        users = []
+        games = []
         for i in reversed(range(10)):
-            user = PlayerUserFactory()
-            user.active_game = GameFactory(user=user, state='queued')
-            user.active_game.date_created = timezone.now() - datetime.timedelta(minutes=i)
-            user.active_game.save()
-            user.save()
-            users.append(user)
+            game = GameFactory(state='queued')
+            game.date_created = timezone.now() - datetime.timedelta(minutes=i)
+            games.append(game)
         with self.settings(RECALL_WINDOW_SIZE=3):
-            self.assertEqual(list(User.objects.next_recalls()), users[:3])
+            self.assertEqual(list(Game.objects.next_recalls()), games[:3])
 
 
 @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
@@ -520,17 +497,14 @@ class TestMethodOverrideMiddleware(AuthenticatedTestMixin, APITransactionTestCas
 class TestSouvenirTask(APITransactionTestCase):
 
     def test_called_on_complete(self):
-        user = PlayerUserFactory()
-        user.active_game = GameFactory(user=user, state='playing')
+        game = GameFactory(state='playing')
         with mock.patch('game.tasks.render_souvenir.s') as _delay_partial:
-            user.active_game.complete(10, 10, 10)
+            game.complete(10, 10, 10)
             _delay_partial().delay.assert_called()
 
     def test_screenshot_on_complete(self):
-        user = PlayerUserFactory()
-        user.active_game = GameFactory(user=user, state='playing')
-        user.save()
+        game = GameFactory(state='playing')
         with mock.patch('chromote.Chromote') as _Chromote:
             _Chromote().tabs = mock.MagicMock()
-            user.active_game.complete(10, 10, 10)
+            game.complete(10, 10, 10)
             _Chromote().tabs[0].screenshot.assert_called()
