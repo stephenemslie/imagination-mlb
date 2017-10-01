@@ -18,6 +18,7 @@ class Show(models.Model):
     date = models.DateField()
     welcome_message = models.CharField(max_length=160)
     recall_message = models.CharField(max_length=160)
+    souvenir_message = models.CharField(max_length=130)
 
 
 class Team(models.Model):

@@ -15,8 +15,12 @@ def forwards(apps, schema_editor):
     recall_message = ("Ready to smash it? Because it’s your turn to bat now! "
                       "Please head over to the batting cage where we’re waiting for "
                       "you. Do your team proud!")
+    souvenir_message = ("Thanks for playing! Download your pic here: {} "
+                        "If you like this, you’ll love our event on July 4th: "
+                        "http://bit.ly/mlbbg")
     show = Show.objects.create(welcome_message=welcome_message,
                                recall_message=recall_message,
+                               souvenir_message=souvenir_message,
                                date=date(2017,6,30))
     Game.objects.update(show=show)
 

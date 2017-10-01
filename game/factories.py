@@ -33,6 +33,7 @@ class ShowFactory(factory.django.DjangoModelFactory):
     date = factory.Faker('date')
     welcome_message = "Welcome message"
     recall_message = "Recall message"
+    souvenir_message = "Souvenir message. Url is: {}"
 
 
 class PlayerUserFactory(factory.django.DjangoModelFactory):
