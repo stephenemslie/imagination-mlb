@@ -11,8 +11,8 @@ from rest_framework.test import APITransactionTestCase
 from rest_framework.reverse import reverse
 from PIL import Image
 
-from .factories import AdminUserFactory, PlayerUserFactory, GameFactory, TeamFactory
-from .models import User, Game
+from .factories import AdminUserFactory, PlayerUserFactory, GameFactory, TeamFactory, ShowFactory
+from .models import User, Game, Show
 from .views import set_lighting
 from .signals import recall_users
 from .serializers import GameSerializer
@@ -36,6 +36,7 @@ class TestPlayerFields(AuthenticatedTestMixin, APITransactionTestCase):
 
     def setUp(self):
         super().setUp()
+        self.show = ShowFactory()
         player = PlayerUserFactory.build()
         team = TeamFactory()
         self.data = {'first_name': player.first_name,
@@ -43,7 +44,8 @@ class TestPlayerFields(AuthenticatedTestMixin, APITransactionTestCase):
                      'mobile_number': player.mobile_number,
                      'team': team.name,
                      'handedness': player.handedness,
-                     'signed_waiver': True}
+                     'signed_waiver': True,
+                     'show': self.show.pk}
 
     def test_create(self):
         response = self.client.post(reverse('user-list'), self.data)
@@ -88,6 +90,21 @@ class TestPlayerFields(AuthenticatedTestMixin, APITransactionTestCase):
         self.data.pop('team')
         response = self.client.post(reverse('user-list'), self.data)
         self.assertEqual(response.status_code, 201)
+
+    def test_show(self):
+        response = self.client.post(reverse('user-list'), self.data)
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.json()['active_game']['show'], self.show.pk)
+
+    def test_show_default(self):
+        """Test that the show with the newest date is the default"""
+        for i in range(5):
+            ShowFactory()
+        show = Show.objects.order_by('-date')[0]
+        self.data.pop('show')
+        response = self.client.post(reverse('user-list'), self.data)
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.json()['active_game']['show'], show.pk)
 
 
 @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
