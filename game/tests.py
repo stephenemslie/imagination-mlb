@@ -10,6 +10,7 @@ from django.test import override_settings
 from rest_framework.test import APITransactionTestCase
 from rest_framework.reverse import reverse
 from PIL import Image
+import boto3
 
 from .factories import AdminUserFactory, PlayerUserFactory, GameFactory, TeamFactory, ShowFactory
 from .models import User, Game, Show
@@ -19,7 +20,7 @@ from .serializers import GameSerializer
 
 
 logging.disable(logging.CRITICAL)
-
+boto3.client = mock.Mock()
 
 class AuthenticatedTestMixin:
 
@@ -187,13 +188,11 @@ class TestGameStateActions(AuthenticatedTestMixin, APITransactionTestCase):
 
     @mock.patch.object(User, 'send_recall_sms')
     def test_recall(self, send_recall_sms):
-        with self.settings(RECALL_DISABLE=False):
-            self.client.post(reverse('game-queue', args=(self.player.active_game.pk,)))
-            self.client.post(reverse('user-recall', args=(self.player.pk,)))
-            send_recall_sms.assert_called()
+        self.client.post(reverse('game-queue', args=(self.player.active_game.pk,)))
+        self.client.post(reverse('user-recall', args=(self.player.pk,)))
+        send_recall_sms.assert_called()
 
-    @mock.patch.object(User, 'send_recall_sms')
-    def test_requeue(self, _send_recall_sms):
+    def test_requeue(self):
         self.assertEqual(Game.objects.get(pk=self.player.active_game.pk).state, 'new')
         self.client.post(reverse('game-queue', args=(self.player.active_game.pk,)))
         self.client.post(reverse('user-recall', args=(self.player.pk,)))
@@ -218,8 +217,7 @@ class TestGameStateActions(AuthenticatedTestMixin, APITransactionTestCase):
 @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
 class TestGameStateLog(AuthenticatedTestMixin, APITransactionTestCase):
 
-    @mock.patch.object(User, 'send_recall_sms')
-    def setUp(self, send_recall_sms):
+    def setUp(self):
         super().setUp()
         game = GameFactory()
         with self._patch_now(offset=1) as self.dt1:
@@ -358,12 +356,11 @@ class TestRecallUsersSignal(APITransactionTestCase):
 
     def _recall_users(self, state):
         with mock.patch.object(User, 'send_recall_sms') as _send_recall_sms:
-            with self.settings(RECALL_DISABLE=False):
-                recall_users(sender=mock.Mock(),
-                             instance=mock.Mock(),
-                             name=mock.Mock(),
-                             source=mock.Mock(),
-                             target=state)
+            recall_users(sender=mock.Mock(),
+                         instance=mock.Mock(),
+                         name=mock.Mock(),
+                         source=mock.Mock(),
+                         target=state)
         return _send_recall_sms
 
     def test_send_recall_sms_completed(self):
