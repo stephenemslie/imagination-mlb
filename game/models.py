@@ -4,7 +4,7 @@ from django.db import models
 from django.db.models import Count
 from django.db.models.functions import Trunc
 from django.conf import settings
-from django.contrib.auth.models import AbstractUser, UserManager
+from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 
 from django_fsm import FSMField, transition
@@ -39,25 +39,6 @@ class Team(models.Model):
         return list(query)
 
 
-class UserQuerySet(models.QuerySet, UserManager):
-
-    def active_recalls(self, recall_expire=None, now=None):
-        now = now or timezone.now()
-        recall_expire = recall_expire or settings.RECALL_WINDOW_MINUTES
-        expire_time = now - datetime.timedelta(minutes=recall_expire)
-        query = self.filter(active_game__state='recalled',
-                            active_game__date_updated__gt=expire_time)
-        return query
-
-    def next_recalls(self, max_recalls=None):
-        max_recalls = max_recalls or settings.RECALL_WINDOW_SIZE
-        size = max(max_recalls - self.active_recalls().count(), 0)
-        query = self.order_by('active_game__date_created')\
-                    .filter(active_game__state='queued')\
-                    .exclude(mobile_number='')
-        return query[:size]
-
-
 class User(AbstractUser):
     mobile_number = PhoneNumberField(blank=True, default='')
     image = models.ImageField(null=True, blank=True)
@@ -69,12 +50,6 @@ class User(AbstractUser):
                                   null=True, blank=True)
     signed_waiver = models.BooleanField(default=False)
 
-    objects = UserQuerySet.as_manager()
-
-    def recall(self):
-        self.active_game.recall()
-        self.active_game.save()
-
     def send_welcome_sms(self):
         message = self.active_game.show.welcome_message
         send_sms.delay(self.mobile_number.as_e164, message)
@@ -82,6 +57,24 @@ class User(AbstractUser):
     def send_recall_sms(self):
         message = self.active_game.show.recall_message
         send_sms.delay(self.mobile_number.as_e164, message)
+
+
+class GameQuerySet(models.QuerySet):
+
+    def active_recalls(self, recall_expire=None, now=None):
+        now = now or timezone.now()
+        recall_expire = recall_expire or settings.RECALL_WINDOW_MINUTES
+        expire_time = now - datetime.timedelta(minutes=recall_expire)
+        query = self.filter(state='recalled', date_updated__gt=expire_time)
+        return query
+
+    def next_recalls(self, max_recalls=None):
+        max_recalls = max_recalls or settings.RECALL_WINDOW_SIZE
+        size = max(max_recalls - self.active_recalls().count(), 0)
+        query = self.order_by('date_created')\
+                    .filter(state='queued')\
+                    .exclude(user__mobile_number='')
+        return query[:size]
 
 
 class Game(models.Model):
@@ -100,6 +93,8 @@ class Game(models.Model):
     score = models.IntegerField(default=0)
     state = FSMField(default='new')
     souvenir_image = models.ImageField(upload_to='souvenirs/', null=True, blank=True)
+
+    objects = GameQuerySet.as_manager()
 
     @transition(field=state, source=['recalled', 'new'], target='queued')
     def queue(self):
