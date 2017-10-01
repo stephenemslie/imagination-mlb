@@ -76,7 +76,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'mlb.wsgi.application'
 
 DATABASES = {
-    'default': env.db(), # Raises ImproperlyConfigured exception if DATABASE_URL not in os.environ
+    'default': env.db()
 }
 
 # Password validation
@@ -169,6 +169,8 @@ DMX_EVENTS = {'LA': (1, 11),
               'in-game': (1, 8)}
 
 if DEBUG is False:
+    database['nuc'] = env.db('NUC_DATABASE_URL')
+    DATABASE_ROUTERS = ['game.router.GameRouter']
     DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
     AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME', default='mlb-django')
 
