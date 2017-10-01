@@ -2,15 +2,15 @@ from django.dispatch import receiver
 from django.utils import timezone
 from django_fsm.signals import post_transition
 
-from .models import Game
+from .models import Game, User
 
 
 @receiver(post_transition, sender=Game)
 def recall_users(sender, instance, name, source, target, **kwargs):
     if target in ('completed', 'cancelled'):
-        for game in Game.objects.next_recalls():
-            game.recall()
-            game.save()
+        for user in User.objects.next_recalls():
+            user.recall()
+            user.save()
 
 
 @receiver(post_transition, sender=Game)
