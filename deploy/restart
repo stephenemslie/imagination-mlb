@@ -1,2 +1,2 @@
 #!/bin/sh
-docker-compose up --no-deps -d --build django celery
+docker-compose up --no-deps -d --force-recreate --build django celery
