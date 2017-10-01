@@ -1,5 +1,8 @@
 version: '3.2'
 services:
+    postgres:
+        image: postgres:9.6.3-alpine
+
     django:
         volumes:
             - '.:/app'

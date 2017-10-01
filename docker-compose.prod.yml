@@ -9,10 +9,14 @@ services:
             - "/var/run/docker.sock:/tmp/docker.sock:ro"
 
     postgres:
+        image: danieldent/postgres-replication
         restart: always
         env_file: /var/secrets/env
         volumes:
             - "pgdata:/var/lib/postgresql/data"
+        environment:
+            PGDATA: '/var/lib/postgresql/data/pgdata'
+            REPLICATE_FROM: '192.168.254.100'
 
     postgres-backup:
         image: schickling/postgres-backup-s3:latest
