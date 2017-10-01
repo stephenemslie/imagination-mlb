@@ -15,9 +15,3 @@ class GameRouter:
         Writes go to the nuc.
         """
         return 'nuc'
-
-    def allow_migrate(self, db, app_label, model_name=None, **hints):
-        """
-        Make sure migrations only occur on the nuc.
-        """
-        return db == 'nuc'
