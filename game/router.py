@@ -18,9 +18,6 @@ class GameRouter:
 
     def allow_migrate(self, db, app_label, model_name=None, **hints):
         """
-        Make sure the auth app only appears in the 'auth_db'
-        database.
+        Make sure migrations only occur on the nuc.
         """
-        if db == 'nuc':
-            return True
-        return False
+        return db == 'nuc'
