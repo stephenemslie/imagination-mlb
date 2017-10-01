@@ -70,6 +70,12 @@ class User(AbstractUser):
 
     objects = UserQuerySet.as_manager()
 
+    def recall(self):
+        self.active_game.recall()
+        if self.mobile_number:
+            self.send_recall_sms()
+        self.active_game.save()
+
     def send_welcome_sms(self):
         message = self.active_game.show.welcome_message
         send_sms.delay(self.mobile_number.as_e164, message)
@@ -109,8 +115,7 @@ class Game(models.Model):
 
     @transition(field=state, source='queued', target='recalled')
     def recall(self):
-        if self.user.mobile_number:
-            self.user.send_recall_sms()
+        pass
 
     @transition(field=state, source='confirmed', target='playing')
     def play(self):
