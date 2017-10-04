@@ -15,3 +15,6 @@ class GameRouter:
         Writes go to the nuc.
         """
         return 'nuc'
+
+    def allow_relation(self, obj1, obj2, **hints):
+        return True
