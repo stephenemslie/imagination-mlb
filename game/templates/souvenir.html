@@ -125,7 +125,7 @@ window.onload = function () {
     var context = canvas.getContext('2d');
 
     var sources = {
-        user: "{{ user.image.url }}",
+        user: "{% if user.image %}{{ user.image.url }}{% endif %}",
         frame: "{% static 'souvenir/images/frame.png' %}"
     };
 
