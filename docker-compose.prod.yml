@@ -3,10 +3,17 @@ services:
 
     nginx:
         image: jwilder/nginx-proxy
+        restart: always
         ports:
             - "80:80"
         volumes:
             - "/var/run/docker.sock:/tmp/docker.sock:ro"
+
+    redis:
+        restart: always
+
+    chrome:
+        restart: always
 
     postgres:
         image: danieldent/postgres-replication
