@@ -307,15 +307,16 @@ class TestIllegalGameStateChanges(AuthenticatedTestMixin, APITransactionTestCase
 @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
 class TestCompleteGame(AuthenticatedTestMixin, APITransactionTestCase):
 
-    @mock.patch('django_fsm.signals.post_transition.send')
-    def setUp(self, send):
+    @mock.patch('game.tasks.send_souvenir_sms.s')
+    @mock.patch('game.tasks.render_souvenir.s')
+    def setUp(self, _render, _send):
         super().setUp()
         self.score_data = {'score': 100, 'homeruns': 3, 'distance': 100}
         game = GameFactory(state='playing')
-        with mock.patch('game.tasks.render_souvenir.delay'):
-            self.response = self.client.post(reverse('game-complete', args=(game.pk,)), self.score_data)
+        self.response = self.client.post(reverse('game-complete', args=(game.pk,)), self.score_data)
         self.game = Game.objects.get(pk=game.pk)
-        self._send = send
+        self._render = _render
+        self._send = _send
 
     def test_state(self):
         self.assertEqual(self.game.state, 'completed')
@@ -330,8 +331,9 @@ class TestCompleteGame(AuthenticatedTestMixin, APITransactionTestCase):
         self.assertEqual(self.response.data['distance'], self.score_data['distance'])
 
     def test_signal(self):
+        self._render.assert_called()
         self._send.assert_called()
-        self.assertEqual(self._send.call_args[1]['target'], 'completed')
+        self.assertEqual(self._render.call_args[0][0], self.game.pk)
 
 
 @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
