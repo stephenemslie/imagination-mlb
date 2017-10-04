@@ -1,6 +1,7 @@
 from django.dispatch import receiver
 from django.utils import timezone
 from django_fsm.signals import post_transition
+from django.db import transaction
 
 from .models import Game
 from .tasks import render_souvenir, send_souvenir_sms
@@ -19,7 +20,7 @@ def send_souvenir(sender, instance, name, source, target, **kwargs):
     if target == 'completed' and instance.user.mobile_number:
         s = render_souvenir.s(instance.pk)
         s.link(send_souvenir_sms.s())
-        s.delay()
+        transaction.on_commit(s.delay)
 
 
 @receiver(post_transition, sender=Game)
