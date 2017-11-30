@@ -39,7 +39,7 @@ def render_souvenir(self, game_id):
     chrome = chromote.Chromote(host=settings.CHROME_REMOTE_HOST)
     tab = chrome.tabs[0]
     tab.set_url("http://{}{}".format(settings.DJANGO_HOST, path))
-    time.sleep(2)
+    time.sleep(10)
     screenshot = tab.screenshot()
     game = Game.objects.get(pk=game_id)
     try:
