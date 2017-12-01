@@ -35,6 +35,7 @@ def send_sms(self, recipient, message):
 @shared_task(bind=True)
 def render_souvenir(self, game_id):
     from .models import Game
+    time.sleep(5)
     path = reverse('game-souvenir', args=(game_id,))
     chrome = chromote.Chromote(host=settings.CHROME_REMOTE_HOST)
     tab = chrome.tabs[0]
