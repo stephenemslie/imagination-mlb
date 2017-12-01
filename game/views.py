@@ -126,6 +126,7 @@ class GameViewSet(viewsets.ModelViewSet):
             if not can_proceed(game.complete):
                 error = {'error': 'Illegal state change {} -> {}'.format(game.state, 'completed')}
                 return Response(error, status=status.HTTP_400_BAD_REQUEST)
+            game.save()
             game.complete(**serializer.data)
             game.save()
             serializer = self.get_serializer(game)
