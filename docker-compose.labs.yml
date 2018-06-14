@@ -9,6 +9,7 @@ services:
         volumes:
             - "/var/run/docker.sock:/tmp/docker.sock:ro"
             - "./nginx.conf:/etc/nginx/vhost.d/mlb.sse.xp.imagination.net:ro"
+            - "media:/app/media"
 
     redis:
         restart: always
