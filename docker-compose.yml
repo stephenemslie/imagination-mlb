@@ -19,7 +19,6 @@ services:
             - SYS_ADMIN
 
     django:
-        image: mlb_django:latest
         build: .
         depends_on:
             - postgres
@@ -29,7 +28,6 @@ services:
         command: runserver
 
     celery:
-        image: mlb_django:latest
         build: .
         depends_on:
             - postgres
