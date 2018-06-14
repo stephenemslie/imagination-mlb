@@ -1,0 +1,50 @@
+version: '3.2'
+services:
+
+    nginx:
+        image: jwilder/nginx-proxy
+        restart: always
+        ports:
+            - "80:80"
+        volumes:
+            - "/var/run/docker.sock:/tmp/docker.sock:ro"
+
+    redis:
+        restart: always
+
+    chrome:
+        restart: always
+
+    postgres:
+        restart: always
+        env_file: /var/secrets/env
+        ports:
+            - "5432:5432"
+        volumes:
+            - "pgdata:/var/lib/postgresql/data"
+        environment:
+            PGDATA: '/var/lib/postgresql/data/pgdata'
+
+    django:
+        environment:
+            DEBUG: 'False'
+            GUNICORN_CMD_ARGS: '--bind=0.0.0.0:8000 --workers=2'
+            VIRTUAL_HOST: mlb.sse.xp.imagination.net
+            DJANGO_ALLOWED_HOSTS: "*"
+            CORS_ORIGIN_ALLOW_ALL: 'True'
+        ports:
+            - "8000:8000"
+        depends_on:
+            - nginx
+        command: gunicorn
+        restart: always
+        env_file: /var/secrets/env
+
+    celery:
+        environment:
+            DEBUG: 'False'
+        restart: always
+        env_file: /var/secrets/env
+
+volumes:
+    pgdata:
