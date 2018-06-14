@@ -168,11 +168,13 @@ DMX_EVENTS = {'LA': (1, 11),
               'attractor': (1, 2),
               'in-game': (1, 8)}
 
+if 'AWS_STORAGE_BUCKET_NAME' in os.environ:
+    AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME', default='mlb-django')
+    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
 if DEBUG is False:
     DATABASES['nuc'] = env.db('NUC_DATABASE_URL')
     DATABASE_ROUTERS = ['game.router.GameRouter']
-    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-    AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME', default='mlb-django')
 
     RAVEN_CONFIG = {
         'dsn': env('SENTRY_DSN'),
