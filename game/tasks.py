@@ -39,6 +39,7 @@ def render_souvenir(self, game_id):
     async def screenshot(url):
         browser = await launch(args=['--no-sandbox'])
         page = await browser.newPage()
+        await page.emulate({'viewport': {'width': 1080, 'height': 1080}})
         await page.goto(url)
         return await page.screenshot()
     loop = asyncio.get_event_loop()
