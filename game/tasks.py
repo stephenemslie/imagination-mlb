@@ -77,6 +77,7 @@ def shorten_url(self, url):
 def send_souvenir_sms(game_id):
     from .models import Game
     game = Game.objects.get(pk=game_id)
-    url = shorten_url(game.souvenir_image.url)['data']['url']
+    url = 'http://{}{}'.format(settings.DJANGO_HOST, game.souvenir_image.url)
+    url = shorten_url(url)['data']['url']
     message = game.show.souvenir_message.format(url)
     send_sms.delay(game.user.mobile_number.as_e164, message)
