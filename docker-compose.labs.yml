@@ -45,6 +45,7 @@ services:
     celery:
         environment:
             DEBUG: 'False'
+            DJANGO_HOST: mlb.sse.xp.imagination.net
         volumes:
             - "media:/app/media"
         restart: always
