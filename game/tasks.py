@@ -41,6 +41,7 @@ def render_souvenir(self, game_id):
         page = await browser.newPage()
         await page.emulate({'viewport': {'width': 1080, 'height': 1080}})
         await page.goto(url, waitUntil='load')
+        time.sleep(2)
         return await page.screenshot()
     loop = asyncio.get_event_loop()
     path = reverse('game-souvenir', args=(game_id,))
