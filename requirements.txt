@@ -17,6 +17,6 @@ gunicorn==19.7.1
 factory-boy==2.9.2
 celery[redis]==4.1.1
 raven==6.8.0
+pyppeteer==0.0.17
 git+https://github.com/tobypatterson/pySimpleDMX.git#egg=pysimpledmx
-git+https://github.com/iiSeymour/chromote.git#egg=chromote
 ipdb

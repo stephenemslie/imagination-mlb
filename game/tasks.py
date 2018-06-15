@@ -1,12 +1,13 @@
 import time
+import asyncio
 
 from django.conf import settings
 from django.core.files.base import ContentFile
 from django.urls import reverse
 
 import boto3
-import chromote
 import requests
+from pyppeteer import launch
 from celery import shared_task
 from botocore.exceptions import EndpointConnectionError
 
@@ -35,16 +36,18 @@ def send_sms(self, recipient, message):
 @shared_task(bind=True)
 def render_souvenir(self, game_id):
     from .models import Game
-    time.sleep(5)
+    async def screenshot(url):
+        browser = await launch(args=['--no-sandbox'])
+        page = await browser.newPage()
+        await page.goto(url)
+        return await page.screenshot()
+    loop = asyncio.get_event_loop()
     path = reverse('game-souvenir', args=(game_id,))
-    chrome = chromote.Chromote(host=settings.CHROME_REMOTE_HOST)
-    tab = chrome.tabs[0]
-    tab.set_url("http://{}{}".format(settings.DJANGO_HOST, path))
-    time.sleep(10)
-    screenshot = tab.screenshot()
+    url = "http://{}{}".format(settings.DJANGO_HOST, path)
+    data = loop.run_until_complete(screenshot(url))
     game = Game.objects.get(pk=game_id)
     try:
-        game.souvenir_image.save('souvenir.png', ContentFile(screenshot))
+        game.souvenir_image.save('souvenir.png', ContentFile(data))
     except EndpointConnectionError as exc:
         self.retry(exc=exc, countdown=2 ** self.request.retries)
     return game.pk
