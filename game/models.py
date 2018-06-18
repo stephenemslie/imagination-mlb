@@ -40,6 +40,7 @@ class Team(models.Model):
 
 
 class User(AbstractUser):
+    profile_id = models.CharField(max_length=255, blank=True, default='')
     mobile_number = PhoneNumberField(blank=True, default='')
     image = models.ImageField(null=True, blank=True)
     is_finalist = models.BooleanField(default=False)
