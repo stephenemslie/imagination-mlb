@@ -18,8 +18,7 @@ if [ "$1" = 'gunicorn' ]; then
 fi
 
 if [ "$1" = 'celery' ]; then
-    bin/wait-for-it.sh postgres:5432 -- python3 manage.py migrate --noinput
-    exec celery -A mlb worker -l info -B
+    exec bin/wait-for-it.sh postgres:5432 -- celery -A mlb worker -l info -B
 fi
 
 if [ "$1" = 'shell' ]; then
