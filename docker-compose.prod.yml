@@ -12,9 +12,6 @@ services:
     redis:
         restart: always
 
-    chrome:
-        restart: always
-
     postgres:
         image: danieldent/postgres-replication
         restart: always
