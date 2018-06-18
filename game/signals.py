@@ -4,6 +4,7 @@ from django_fsm.signals import post_transition
 from django.db import transaction
 
 from .models import Game
+from .tasks import game_state_transition_hook
 
 
 @receiver(post_transition, sender=Game)
@@ -24,3 +25,8 @@ def log_state_change(sender, instance, name, source, target, **kwargs):
             instance.save()
     except AttributeError:
         pass
+
+
+@receiver(post_transition, sender=Game)
+def trigger_game_hooks(sender, instance, name, source, target, **kwargs):
+    game_state_transition_hook.delay(instance.pk, target)

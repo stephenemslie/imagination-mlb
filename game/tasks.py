@@ -82,3 +82,18 @@ def send_souvenir_sms(game_id):
     url = shorten_url(url)['data']['url']
     message = game.show.souvenir_message.format(url)
     send_sms.delay(game.user.mobile_number.as_e164, message)
+
+
+@shared_task()
+def game_state_transition_hook(game_id, target):
+    game = Game.objects.get(pk=game_id)
+    if target == 'queued':
+        pass
+    elif target == 'recalled':
+        pass
+    elif target == 'confirmed':
+        pass
+    elif target == 'playing':
+        pass
+    elif target == 'completed':
+        pass

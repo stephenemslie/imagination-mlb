@@ -17,6 +17,7 @@ from .models import User, Game, Show
 from .views import set_lighting
 from .signals import recall_users
 from .serializers import GameSerializer
+from .tasks import game_state_transition_hook
 
 
 logging.disable(logging.CRITICAL)
@@ -174,21 +175,27 @@ class TestGameStateActions(AuthenticatedTestMixin, APITransactionTestCase):
         self.assertEqual(response.status_code, 201)
         self.assertEqual(player.active_game.pk, response.json()['id'])
 
-    def test_direct_confirm(self):
+    @mock.patch.object(game_state_transition_hook, 'delay')
+    def test_direct_confirm(self, _hook):
         response = self.client.post(reverse('game-confirm', args=(self.game.pk,)))
         game = Game.objects.get(pk=self.game.pk)
         self.assertEqual(game.state, 'confirmed')
+        _hook.assert_called_with(game.pk, 'confirmed')
 
-    def test_queue(self):
+    @mock.patch.object(game_state_transition_hook, 'delay')
+    def test_queue(self, _hook):
         response = self.client.post(reverse('game-queue', args=(self.game.pk,)))
         game = Game.objects.get(pk=self.game.pk)
         self.assertEqual(game.state, 'queued')
+        _hook.assert_called_with(game.pk, 'queued')
 
+    @mock.patch.object(game_state_transition_hook, 'delay')
     @mock.patch.object(User, 'send_recall_sms')
-    def test_recall(self, send_recall_sms):
+    def test_recall(self, send_recall_sms, _hook):
         self.client.post(reverse('game-queue', args=(self.game.pk,)))
         self.client.post(reverse('game-recall', args=(self.game.pk,)))
         send_recall_sms.assert_called()
+        _hook.assert_called_with(self.game.pk, 'recalled')
 
     def test_requeue(self):
         self.assertEqual(Game.objects.get(pk=self.game.pk).state, 'new')
@@ -197,19 +204,23 @@ class TestGameStateActions(AuthenticatedTestMixin, APITransactionTestCase):
         self.client.post(reverse('game-queue', args=(self.game.pk,)))
         self.assertEqual(Game.objects.get(pk=self.game.pk).state, 'queued')
 
-    def test_play(self):
+    @mock.patch.object(game_state_transition_hook, 'delay')
+    def test_play(self, _hook):
         game = GameFactory(state='confirmed')
         response = self.client.post(reverse('game-play', args=(game.pk,)))
         game = Game.objects.get(pk=game.pk)
         self.assertEqual(game.state, 'playing')
+        _hook.assert_called_with(game.pk, 'playing')
 
-    def test_cancel(self):
+    @mock.patch.object(game_state_transition_hook, 'delay')
+    def test_cancel(self, _hook):
         for state in ('new', 'queued', 'recalled', 'confirmed', 'playing'):
             game = GameFactory(state=state)
             response = self.client.post(reverse('game-cancel', args=(game.pk,)))
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.json()['state'], 'cancelled')
             self.assertEqual(Game.objects.get(pk=game.pk).state, 'cancelled')
+            _hook.assert_called_with(game.pk, 'cancelled')
 
 
 @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
