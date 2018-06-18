@@ -164,6 +164,16 @@ class TestGameStateActions(AuthenticatedTestMixin, APITransactionTestCase):
         self.assertEqual(response.data['active_game']['id'], game.pk)
         self.assertEqual(game.state, 'new')
 
+    @mock.patch('game.tasks.create_user_hook.delay')
+    def test_celery_hook_on_create(self, _create_user_hook):
+        player = PlayerUserFactory.build()
+        data = {'first_name': player.first_name,
+                'mobile_number': player.mobile_number,
+                'team': self.team.name,
+                'handedness': player.handedness}
+        response = self.client.post(reverse('user-list'), data)
+        _create_user_hook.assert_called()
+
     def test_second_game_requires_completion(self):
         game = GameFactory(state='new')
         data = {'user_id': game.user.pk}

@@ -4,6 +4,7 @@ from rest_framework import serializers
 from phonenumber_field.modelfields import PhoneNumberField
 
 from .models import User, Game, Team, Show
+from .tasks import create_user_hook
 
 
 class AuthenticatedFieldsMixin:
@@ -54,6 +55,7 @@ class BaseUserSerializer(AuthenticatedFieldsMixin, serializers.ModelSerializer):
         user.save()
         if user.mobile_number:
             user.send_welcome_sms()
+        create_user_hook.delay(user.pk)
         return user
 
 

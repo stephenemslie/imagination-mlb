@@ -85,6 +85,12 @@ def send_souvenir_sms(game_id):
 
 
 @shared_task()
+def create_user_hook(user_id):
+    user = User.objects.get(pk=user_id)
+    # Do something with the user
+
+
+@shared_task()
 def game_state_transition_hook(game_id, target):
     game = Game.objects.get(pk=game_id)
     if target == 'queued':
