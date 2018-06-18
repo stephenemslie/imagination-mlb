@@ -514,10 +514,3 @@ class TestSouvenirTask(APITransactionTestCase):
         with mock.patch('game.tasks.render_souvenir.s') as _delay_partial:
             game.complete(10, 10, 10)
             _delay_partial().delay.assert_called()
-
-    def test_screenshot_on_complete(self):
-        game = GameFactory(state='playing')
-        with mock.patch('chromote.Chromote') as _Chromote:
-            _Chromote().tabs = mock.MagicMock()
-            game.complete(10, 10, 10)
-            _Chromote().tabs[0].screenshot.assert_called()
