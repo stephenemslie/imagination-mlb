@@ -39,7 +39,7 @@ class BaseUserSerializer(AuthenticatedFieldsMixin, serializers.ModelSerializer):
         model = User
         fields = ('url', 'id', 'first_name', 'last_name', 'mobile_number',
                   'email', 'games', 'active_game', 'team', 'team_url', 'image',
-                  'handedness', 'signed_waiver', 'show')
+                  'handedness', 'signed_waiver', 'show', 'profile_id')
         extra_kwargs = {'handedness': {'required': True},
                         'first_name': {'required': True}}
         auth_fields = ('mobile_number', 'email')
