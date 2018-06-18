@@ -155,10 +155,11 @@ def set_lighting(request):
     serializer = LightingSerializer(data=request.data)
     if serializer.is_valid():
         event = serializer.data['event']
-        dmx = DMXConnection(settings.DMX_PATH)
-        channel, value = settings.DMX_EVENTS[event]
-        dmx.setChannel(channel+1, value)
-        dmx.render()
+        if not settings.LIGHTING_DISABLE:
+            dmx = DMXConnection(settings.DMX_PATH)
+            channel, value = settings.DMX_EVENTS[event]
+            dmx.setChannel(channel+1, value)
+            dmx.render()
         return Response({'received': event})
     else:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
