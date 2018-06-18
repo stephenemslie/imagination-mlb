@@ -32,6 +32,7 @@ services:
             DJANGO_ALLOWED_HOSTS: "*"
             CORS_ORIGIN_ALLOW_ALL: 'True'
             DJANGO_HOST: mlb.sse.xp.imagination.net
+            LIGHTING_DISABLE: 'True'
         ports:
             - "8000:8000"
         volumes:
