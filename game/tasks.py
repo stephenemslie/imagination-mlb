@@ -91,6 +91,7 @@ def create_user_hook(user_id):
 
 @shared_task()
 def game_state_transition_hook(game_id, target):
+    from .models import Game
     game = Game.objects.get(pk=game_id)
     if target == 'queued':
         pass
